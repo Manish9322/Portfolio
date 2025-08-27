@@ -1150,7 +1150,7 @@ export default function Home() {
                     <Skeleton className="h-4 w-2/3" />
                   </div>
                 ))
-              : blogs.map((blog:Blog) => (
+              : blogs.slice(0, 3).map((blog:Blog) => (
                   <BlogCard key={blog._id} blog={blog} variant="compact" />
                 ))}
           </div>

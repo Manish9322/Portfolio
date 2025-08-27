@@ -45,19 +45,20 @@ export function BlogCard({ blog, variant = "default" }: BlogCardProps) {
           </div>
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-2">
-              {blog.tags.slice(0, 2).map((tag) => (
+              {blog.tags.slice(0, 3).map((tag) => (
                 <Badge key={tag} variant="secondary" className="text-xs">
                   {tag}
                 </Badge>
               ))}
             </div>
             <h3 className="font-semibold line-clamp-2 mb-1">{blog.title}</h3>
-            <div className="flex items-center gap-3 text-sm text-muted-foreground">
-              <div className="flex items-center gap-1">
+            <p className="text-muted-foreground text-sm mb-2 line-clamp-3">{blog.description}</p>
+            <div className="flex items-center gap-3 text-sm text-black">
+              <div className="flex items-center gap-1 text-sm">
                 <CalendarDays className="w-4 h-4" />
                 {formattedDate}
               </div>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 text-sm">
                 <Clock className="w-4 h-4" />
                 {blog.readTime}
               </div>
