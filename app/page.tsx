@@ -3,6 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { BlogCard } from "@/components/ui/blog-card";
+import { GallerySection } from "@/components/home";
+
 import {
   ArrowRight,
   ChevronRight,
@@ -26,6 +29,7 @@ import {
   useGetEducationQuery,
   useGetExperiencesQuery,
   useGetProfileQuery,
+  useGetBlogsQuery
 } from "@/services/api";
 
 interface Project {
@@ -79,6 +83,21 @@ interface Experience {
   order: number;
 }
 
+interface Blog {
+  _id: string
+  title: string
+  description: string
+  content: string
+  imageUrl: string
+  tags: string[]
+  readTime: string
+  publishedAt: string
+  author: {
+    name: string
+    avatar: string
+  }
+}
+
 interface Profile {
   name: string;
   title: string;
@@ -96,6 +115,10 @@ interface Profile {
 }
 
 export default function Home() {
+  const { data: blogs = [], isLoading: isLoadingBlogs } = useGetBlogsQuery(undefined, {
+    refetchOnMountOrArgChange: true,
+  });
+
   const { data: profileData, isLoading: isLoadingProfile } = useGetProfileQuery(
     undefined,
     {
@@ -286,79 +309,66 @@ export default function Home() {
   return (
     <div className="flex min-h-screen flex-col">
       {/* Professional Hero Section */}
-      <section className="relative bg-black text-white py-24 md:py-32 overflow-hidden">
-        <div className="absolute inset-0 z-0 opacity-10">
-          <div
-            className="h-full w-full"
-            style={{
-              backgroundImage:
-                "linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)",
-              backgroundSize: "40px 40px",
-            }}
-          ></div>
-        </div>
-        <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-gradient-to-b from-blue-500/10 to-transparent rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-1/4 h-1/4 bg-gradient-to-t from-purple-500/10 to-transparent rounded-full blur-3xl"></div>
+      <section className="relative bg-background text-foreground py-24 md:py-16 overflow-hidden">
+        <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-gradient-to-b from-blue-500/10 dark:from-blue-400/10 to-transparent rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-1/4 h-1/4 bg-gradient-to-t from-purple-500/10 dark:from-purple-400/10 to-transparent rounded-full blur-3xl"></div>
 
         <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
           {isLoadingProfile ? (
-            <div className="grid lg:grid-cols-5 gap-12 items-center animate-pulse">
-              <div className="lg:col-span-3 space-y-8">
-                <Skeleton className="h-6 w-32 mb-6" />
-                <Skeleton className="h-12 w-3/4 mb-2" />
-                <Skeleton className="h-8 w-1/2 mb-4" />
-                <Skeleton className="h-4 w-full mb-2" />
-                <Skeleton className="h-4 w-5/6 mb-4" />
-                <div className="flex flex-wrap gap-4">
-                  <Skeleton className="h-10 w-32" />
-                  <Skeleton className="h-10 w-32" />
-                  <Skeleton className="h-10 w-10 rounded-full" />
-                  <Skeleton className="h-10 w-10 rounded-full" />
-                  <Skeleton className="h-10 w-10 rounded-full" />
-                  <Skeleton className="h-10 w-10 rounded-full" />
-                  <Skeleton className="h-10 w-32" />
-                </div>
-              </div>
-              <div className="lg:col-span-2 flex justify-center lg:justify-end">
-                <Skeleton className="w-64 h-64 md:w-80 md:h-80 rounded-md" />
+            <div className="flex flex-col items-center space-y-8 animate-pulse">
+              <Skeleton className="h-6 w-32 mb-6" />
+              <Skeleton className="h-12 w-3/4 mb-2" />
+              <Skeleton className="h-8 w-1/2 mb-4" />
+              <Skeleton className="h-4 w-full mb-2" />
+              <Skeleton className="h-4 w-5/6 mb-4" />
+              <div className="flex flex-wrap justify-center gap-4">
+                <Skeleton className="h-10 w-32" />
+                <Skeleton className="h-10 w-32" />
+                <Skeleton className="h-10 w-10 rounded-full" />
+                <Skeleton className="h-10 w-10 rounded-full" />
+                <Skeleton className="h-10 w-10 rounded-full" />
+                <Skeleton className="h-10 w-10 rounded-full" />
+                <Skeleton className="h-10 w-32" />
               </div>
             </div>
           ) : (
-            <div className="grid lg:grid-cols-5 gap-12 items-center">
-              <div className="lg:col-span-3 space-y-8">
+            <div className="flex flex-col items-center text-center">
+              <div className="space-y-8 max-w-6xl">
                 <div>
-                  <div className="inline-flex items-center px-3 py-1 rounded-full bg-white/10 border border-white/20 text-sm font-medium mb-6">
+                  <div className="inline-flex items-center px-3 py-1 rounded-full bg-black/5 border text-black dark:bg-black/10 border-black/10 text-sm font-medium mb-6 dark:text-white dark:border-white dark:border-white/30">
                     <span className="relative flex h-2 w-2 mr-2">
-                      <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                      <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-black dark:bg-white opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-black dark:bg-white"></span>
                     </span>
                     Available for new opportunities
                   </div>
 
-                  <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
-                    <span className="block mb-2">Hello, I'm</span>
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-blue-400 to-white">
+                  <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-tight">
+                    <span className="block mb-3 text-gray-900 dark:text-white">
+                      Hello, I'm
+                    </span>
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-blue-400 to-blue-600">
                       {profileData?.name}
                     </span>
                   </h1>
 
-                  <div className="h-1 w-20 bg-blue-500 my-6"></div>
+                  <div className="h-0.5 w-full bg-blue-500 my-6 mx-auto rounded-full"></div>
 
-                  <h2 className="text-2xl md:text-3xl font-medium text-blue-400 mb-4">
+                  <h2 className="text-2xl md:text-3xl font-medium text-black dark:text-white mb-4">
                     {profileData?.title}
                   </h2>
 
-                  <p className="text-lg text-gray-300 leading-relaxed max-w-2xl">
+                  <p className="text-lg text-gray-600 dark:text-white leading-relaxed max-w-3xl mx-auto">
                     {profileData?.about} Specializing in creating modern,
                     high-performance web applications with exceptional user
                     experiences.
                   </p>
                 </div>
 
-                <div className="flex flex-wrap gap-4">
+                <div className="flex flex-wrap justify-center gap-4">
                   <Button
                     size="lg"
-                    className="bg-blue-600 hover:bg-blue-700 text-white transition-all duration-300 shadow-lg hover:shadow-blue-900/20"
+                    className="bg-blue-600 hover:bg-blue-700 text-white transition-all duration-300 shadow-lg hover:shadow-blue-900/20 dark:bg-transparent dark:border dark:border-white/25 dark:hover:bg-blue-600 dark:hover:text-white"
                     asChild
                   >
                     <Link href="/work">
@@ -369,7 +379,7 @@ export default function Home() {
                   <Button
                     size="lg"
                     variant="outline"
-                    className="border-white/20 hover:text-black bg-white/10 hover:bg-white text-white transition-all duration-300"
+                    className="bg-blue-600 hover:bg-blue-700 hover:text-white text-white transition-all duration-300 shadow-lg hover:shadow-blue-900/20 dark:bg-transparent dark:border dark:border-white/25 dark:hover:bg-blue-600 dark:hover:text-white"
                     asChild
                   >
                     <Link href="/contact">
@@ -377,14 +387,19 @@ export default function Home() {
                     </Link>
                   </Button>
 
+                  {/* Social Links - Updated styles */}
                   {profileData?.socialLinks.github && (
                     <Link
                       href={profileData.socialLinks.github}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <Button variant="ghost" size="icon">
-                        <Github className="h-5 w-5 text-white hover:text-black" />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-black dark:text-blue-600 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-white dark:hover:bg-blue-600"
+                      >
+                        <Github className="h-5 w-5" />
                       </Button>
                     </Link>
                   )}
@@ -395,8 +410,12 @@ export default function Home() {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <Button variant="ghost" size="icon">
-                        <Linkedin className="h-5 w-5 text-white" />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-black dark:text-blue-600 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-white dark:hover:bg-blue-600"
+                      >
+                        <Linkedin className="h-5 w-5 " />
                       </Button>
                     </Link>
                   )}
@@ -407,8 +426,12 @@ export default function Home() {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <Button variant="ghost" size="icon">
-                        <Twitter className="h-5 w-5 text-white" />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-black dark:text-blue-600 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-white dark:hover:bg-blue-600"
+                      >
+                        <Twitter className="h-5 w-5 " />
                       </Button>
                     </Link>
                   )}
@@ -419,8 +442,12 @@ export default function Home() {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <Button variant="ghost" size="icon">
-                        <Instagram className="h-5 w-5 text-white" />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-black dark:text-blue-600 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-white dark:hover:bg-blue-600"
+                      >
+                        <Instagram className="h-5 w-5 " />
                       </Button>
                     </Link>
                   )}
@@ -429,31 +456,12 @@ export default function Home() {
                     <a href={profileData.resumeUrl} download>
                       <Button
                         size="lg"
-                        className="bg-white text-black hover:text-white transition-all duration-300"
+                        className="bg-blue-600 hover:bg-blue-700 text-white transition-all duration-300 shadow-lg hover:shadow-blue-900/20 dark:bg-transparent dark:border dark:border-white/25 dark:hover:bg-blue-600 dark:hover:text-white"
                       >
                         Download Resume <Download className="ml-2 h-4 w-4" />
                       </Button>
                     </a>
                   )}
-                </div>
-              </div>
-
-              <div className="lg:col-span-2 flex justify-center lg:justify-end">
-                <div className="relative">
-                  <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-md overflow-hidden border border-white/10 shadow-2xl">
-                    <Image
-                      src={
-                        profileData?.profileImage ||
-                        "/placeholder.svg?height=400&width=400"
-                      }
-                      alt={profileData?.name || "Profile"}
-                      fill
-                      className="object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                  </div>
-                  <div className="absolute -top-4 -right-4 w-24 h-24 border border-blue-500/30 rounded-md"></div>
-                  <div className="absolute -bottom-4 -left-4 w-32 h-32 border border-blue-500/30 rounded-md"></div>
                 </div>
               </div>
             </div>
@@ -466,8 +474,7 @@ export default function Home() {
             isLoadingEducation
               ? [...Array(4)].map((_, index) => (
                   <div key={index} className="relative group">
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-transparent rounded-md"></div>
-                    <div className="relative p-6 border border-white/10 rounded-md backdrop-blur-sm">
+                    <div className="relative p-6 border border-black/25 rounded-lg bg-card/50 backdrop-blur-sm">
                       <Skeleton className="h-8 w-16 mb-1" />
                       <Skeleton className="h-4 w-32" />
                     </div>
@@ -477,59 +484,309 @@ export default function Home() {
                   {
                     value: calculateYearsOfExperience(experiences) || "0",
                     label: "Years Experience",
+                    subtext: "Professional Development",
+                    icon: (
+                      <svg
+                        className="w-8 h-8 mb-4 text-primary/80"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                    ),
                   },
                   {
                     value: projects.length.toString() || "0",
                     label: "Projects Completed",
+                    subtext: "Delivered Successfully",
+                    icon: (
+                      <svg
+                        className="w-8 h-8 mb-4 text-primary/80"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                        />
+                      </svg>
+                    ),
                   },
                   {
                     value: totalSkills.toString() || "0",
                     label: "Total Skills",
+                    subtext: "And Growing Daily",
+                    icon: (
+                      <svg
+                        className="w-8 h-8 mb-4 text-primary/80"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M13 10V3L4 14h7v7l9-11h-7z"
+                        />
+                      </svg>
+                    ),
                   },
                   {
                     value: totalCertifications.toString() || "0",
                     label: "Total Certifications",
+                    subtext: "Professional Growth",
+                    icon: (
+                      <svg
+                        className="w-8 h-8 mb-4 text-primary/80"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
+                        />
+                      </svg>
+                    ),
                   },
                 ].map((stat, index) => (
                   <div key={index} className="relative group">
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-transparent rounded-md transition-all duration-300 group-hover:from-blue-800/30"></div>
-                    <div className="relative p-6 border border-white/10 rounded-md backdrop-blur-sm">
-                      <div className="text-3xl font-bold mb-1">
-                        {stat.value}
+                    <div className="relative p-6 rounded-lg bg-card hover:bg-card/80 border border-gray/50 hover:border-primary/50 transition-all duration-300 overflow-hidden shadow-lg hover:shadow-xl">
+                      {/* Background Patterns */}
+                      <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:20px_20px]" />
+
+                      {/* Gradient Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                      {/* Main Content */}
+                      <div className="relative z-10">
+                        <div className="flex items-center justify-between mb-4">
+                          {stat.icon}
+                          <span className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <svg
+                              className="w-4 h-4 text-primary dark:text-white"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M5 10l7-7m0 0l7 7m-7-7v18"
+                              />
+                            </svg>
+                          </span>
+                        </div>
+
+                        <div className="space-y-2">
+                          <div className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent animate-gradient">
+                            {stat.value}
+                          </div>
+                          <div className="space-y-1">
+                            <div className="text-sm font-medium text-foreground">
+                              {stat.label}
+                            </div>
+                            <div className="text-xs text-muted-foreground/80">
+                              {stat.subtext}
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-sm text-gray-400">{stat.label}</div>
+
+                      {/* Corner Accents */}
+                      <div className="absolute -right-12 -top-12 w-24 h-24 bg-primary/10 rounded-full blur-2xl transition-all duration-500 group-hover:scale-150" />
+                      <div className="absolute -right-2 -top-2 w-8 h-8 bg-primary/20 rounded-full blur-xl transition-all duration-500 group-hover:scale-150" />
+
+                      {/* Bottom Accent Line */}
+                      <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     </div>
                   </div>
                 ))}
           </div>
+        </div>
+      </section>
 
-          <div className="mt-16 flex justify-center">
-            <div className="animate-bounce flex flex-col items-center opacity-60 hover:opacity-100 transition-opacity">
-              <span className="text-xs text-gray-400 mb-2">Explore More</span>
-              <svg
-                className="w-5 h-5 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                />
-              </svg>
+      {/* Enhanced Experience Section */}
+      <section className="py-24 bg-gradient-to-b from-background via-background to-muted/50 dark:from-background dark:via-background/80 dark:to-muted/20">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+          <div className="mb-16 text-center">
+            <div className="inline-flex items-center px-3 py-1 rounded-full bg-black/5 border text-black dark:bg-black/10 border-black/10 text-sm font-medium mb-6 dark:text-white dark:border-white dark:border-white/30">
+              <span className="relative flex h-2 w-2 mr-2">
+                <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-black dark:bg-white opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-black dark:bg-white"></span>
+              </span>
+              Career Growth & Experience
             </div>
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground">
+              Professional Journey
+            </h2>
+            <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
+              My career path and the companies where I've made an impact
+            </p>
+          </div>
+
+          <div className="relative">
+            <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary/80 via-primary/50 to-primary/20 dark:from-primary/60 dark:via-primary/30 dark:to-primary/10 hidden lg:block"></div>
+
+            <div className="space-y-24">
+              {isLoadingExperiences ? (
+                <>
+                  {[...Array(3)].map((_, index) => (
+                    <ExperienceSkeletonCard key={index} />
+                  ))}
+                </>
+              ) : sortedExperiences && sortedExperiences.length > 0 ? (
+                sortedExperiences.map((job: Experience, index: number) => (
+                  <div key={job._id} className="relative">
+                    <div className="absolute left-1/2 top-0 w-6 h-6 bg-primary rounded-full transform -translate-x-1/2 -translate-y-1/2 hidden lg:flex items-center justify-center">
+                      <div className="w-3 h-3 bg-background rounded-full"></div>
+                    </div>
+
+                    <div
+                      className={`lg:grid lg:grid-cols-2 lg:gap-8 items-center ${
+                        index % 2 === 0 ? "" : "lg:flex-row-reverse"
+                      }`}
+                    >
+                      <div
+                        className={`mb-8 lg:mb-0 ${
+                          index % 2 === 0
+                            ? "lg:text-right lg:pr-12"
+                            : "lg:order-2 lg:text-left lg:pl-12"
+                        }`}
+                      >
+                        <div className="bg-card border shadow-lg rounded-md p-8 transform transition-all hover:-translate-y-1 hover:shadow-xl">
+                          <div className="flex items-center gap-4 mb-4 justify-start">
+                            <div className="w-16 h-16 relative flex-shrink-0 rounded-full overflow-hidden border bg-muted">
+                              <Image
+                                src={job.logo || "/placeholder.svg"}
+                                alt={job.company}
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
+                            <div>
+                              <h3 className="text-2xl font-bold">
+                                {job.position}
+                              </h3>
+                              <p className="text-primary font-medium">
+                                {job.company}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-4 mb-6 text-sm text-muted-foreground">
+                            <div className="flex items-center gap-1">
+                              <span className="inline-block w-3 h-3 rounded-full bg-primary/20"></span>
+                              {job.period}
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <MapPin className="h-3 w-3" />
+                              {job.location}
+                            </div>
+                          </div>
+
+                          <p className="mb-6 text-muted-foreground">
+                            {job.description}
+                          </p>
+
+                          <div className="space-y-4">
+                            <h4 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground">
+                              Key Achievements
+                            </h4>
+                            <ul className="space-y-2">
+                              {job.achievements.map((achievement, i) => (
+                                <li key={i} className="flex items-start gap-2">
+                                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary mt-2"></span>
+                                  <span className="text-sm">{achievement}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div
+                        className={`${
+                          index % 2 === 0
+                            ? "lg:pl-12"
+                            : "lg:order-1 lg:pr-12 lg:text-right"
+                        }`}
+                      >
+                        <div className="bg-muted/50 backdrop-blur-sm rounded-md p-8 border">
+                          <h4 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground mb-4">
+                            Technologies Used
+                          </h4>
+                          <div className="flex flex-wrap gap-2">
+                            {job.technologies.map((tech, i) => (
+                              <Badge
+                                key={i}
+                                variant="outline"
+                                className="bg-background"
+                              >
+                                {tech}
+                              </Badge>
+                            ))}
+                          </div>
+
+                          <div className="mt-8 pt-8 border-t">
+                            <h4 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground mb-4">
+                              Responsibilities
+                            </h4>
+                            <ul className="space-y-2">
+                              {job.responsibilities.map((responsibility, i) => (
+                                <li key={i} className="flex items-center gap-2">
+                                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary"></span>
+                                  <span className="text-sm">
+                                    {responsibility}
+                                  </span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div>No experience entries found</div>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-16 text-center">
+            <Button asChild variant="outline" size="lg">
+              <Link href="/experience">View All Experiences</Link>
+            </Button>
           </div>
         </div>
       </section>
 
       {/* Featured Projects */}
-      <section className="py-20">
+      <section className="py-20 bg-background">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
           <div className="mb-12 text-center">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+            <div className="inline-flex items-center px-3 py-1 rounded-full bg-black/5 border text-black dark:bg-black/10 border-black/10 text-sm font-medium mb-6 dark:text-white dark:border-white dark:border-white/30">
+              <span className="relative flex h-2 w-2 mr-2">
+                <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-black dark:bg-white opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-black dark:bg-white"></span>
+              </span>
+              Recent Work
+            </div>
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground">
               Featured Projects
             </h2>
             <p className="mt-4 text-lg text-muted-foreground">
@@ -593,7 +850,7 @@ export default function Home() {
                       {project.tags.map((tag: string, index: number) => (
                         <span
                           key={index}
-                          className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors hover:bg-secondary"
+                          className="inline-flex items-center rounded-full border border-border px-2.5 py-0.5 text-xs font-semibold transition-colors hover:bg-secondary text-foreground"
                         >
                           {tag}
                         </span>
@@ -634,14 +891,21 @@ export default function Home() {
       </section>
 
       {/* Skills Section */}
-      <section className="bg-muted py-20">
+      <section className="bg-muted/50 dark:bg-muted/20 py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
           <div className="mb-12 text-center">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+            <div className="inline-flex items-center px-3 py-1 rounded-full bg-black/5 border text-black dark:bg-black/10 border-black/10 text-sm font-medium mb-6 dark:text-white dark:border-white dark:border-white/30">
+              <span className="relative flex h-2 w-2 mr-2">
+                <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-black dark:bg-white opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-black dark:bg-white"></span>
+              </span>
+              Technical Expertise
+            </div>
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground">
               My Personal Skills
             </h2>
             <p className="mt-4 text-lg text-muted-foreground">
-              Things I’ve practiced and improved over time.
+              Things I've practiced and improved over time.
             </p>
           </div>
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
@@ -676,10 +940,17 @@ export default function Home() {
       </section>
 
       {/* Education Section */}
-      <section className="py-20 bg-gradient-to-b from-background to-muted/30">
+      <section className="py-20 bg-gradient-to-b from-background to-muted/30 dark:from-background dark:to-muted/10">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
           <div className="mb-12 text-center">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+            <div className="inline-flex items-center px-3 py-1 rounded-full bg-black/5 border text-black dark:bg-black/10 border-black/10 text-sm font-medium mb-6 dark:text-white dark:border-white dark:border-white/30">
+              <span className="relative flex h-2 w-2 mr-2">
+                <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-black dark:bg-white opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-black dark:bg-white"></span>
+              </span>
+              Qualifications & Learning
+            </div>
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground">
               Education & Certifications
             </h2>
             <p className="mt-4 text-lg text-muted-foreground">
@@ -848,161 +1119,78 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Enhanced Experience Section */}
-      <section className="py-24 bg-gradient-to-b from-background via-background to-muted/50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-          <div className="mb-16 text-center">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-5xl">
-              Professional Journey
+      {/* Blog Section */}
+      <section className="py-20 bg-background">
+        <div className="container mx-auto px-4 max-w-7xl">
+          <div className="mb-12 text-center">
+            <div className="inline-flex items-center px-3 py-1 rounded-full bg-black/5 border text-black dark:bg-black/10 border-black/10 text-sm font-medium mb-6 dark:text-white dark:border-white dark:border-white/30">
+              <span className="relative flex h-2 w-2 mr-2">
+                <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-black dark:bg-white opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-black dark:bg-white"></span>
+              </span>
+              Fresh Insights
+            </div>
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground">
+              Latest Blog Posts
             </h2>
-            <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-              My career path and the companies where I've made an impact
+            <p className="mt-4 text-lg text-muted-foreground">
+              Read my latest thoughts, ideas, and insights about technology and
+              development
             </p>
           </div>
 
-          <div className="relative">
-            <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary/80 via-primary/50 to-primary/20 hidden lg:block"></div>
-
-            <div className="space-y-24">
-              {isLoadingExperiences ? (
-                <>
-                  {[...Array(3)].map((_, index) => (
-                    <ExperienceSkeletonCard key={index} />
-                  ))}
-                </>
-              ) : sortedExperiences && sortedExperiences.length > 0 ? (
-                sortedExperiences.map((job: Experience, index: number) => (
-                  <div key={job._id} className="relative">
-                    <div className="absolute left-1/2 top-0 w-6 h-6 bg-primary rounded-full transform -translate-x-1/2 -translate-y-1/2 hidden lg:flex items-center justify-center">
-                      <div className="w-3 h-3 bg-background rounded-full"></div>
-                    </div>
-
-                    <div
-                      className={`lg:grid lg:grid-cols-2 lg:gap-8 items-center ${
-                        index % 2 === 0 ? "" : "lg:flex-row-reverse"
-                      }`}
-                    >
-                      <div
-                        className={`mb-8 lg:mb-0 ${
-                          index % 2 === 0
-                            ? "lg:text-right lg:pr-12"
-                            : "lg:order-2 lg:text-left lg:pl-12"
-                        }`}
-                      >
-                        <div className="bg-card border shadow-lg rounded-md p-8 transform transition-all hover:-translate-y-1 hover:shadow-xl">
-                          <div className="flex items-center gap-4 mb-4 justify-start">
-                            <div className="w-16 h-16 relative flex-shrink-0 rounded-full overflow-hidden border bg-muted">
-                              <Image
-                                src={job.logo || "/placeholder.svg"}
-                                alt={job.company}
-                                fill
-                                className="object-cover"
-                              />
-                            </div>
-                            <div>
-                              <h3 className="text-2xl font-bold">
-                                {job.position}
-                              </h3>
-                              <p className="text-primary font-medium">
-                                {job.company}
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-4 mb-6 text-sm text-muted-foreground">
-                            <div className="flex items-center gap-1">
-                              <span className="inline-block w-3 h-3 rounded-full bg-primary/20"></span>
-                              {job.period}
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <MapPin className="h-3 w-3" />
-                              {job.location}
-                            </div>
-                          </div>
-
-                          <p className="mb-6 text-muted-foreground">
-                            {job.description}
-                          </p>
-
-                          <div className="space-y-4">
-                            <h4 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground">
-                              Key Achievements
-                            </h4>
-                            <ul className="space-y-2">
-                              {job.achievements.map((achievement, i) => (
-                                <li key={i} className="flex items-start gap-2">
-                                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary mt-2"></span>
-                                  <span className="text-sm">{achievement}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div
-                        className={`${
-                          index % 2 === 0
-                            ? "lg:pl-12"
-                            : "lg:order-1 lg:pr-12 lg:text-right"
-                        }`}
-                      >
-                        <div className="bg-muted/50 backdrop-blur-sm rounded-md p-8 border">
-                          <h4 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground mb-4">
-                            Technologies Used
-                          </h4>
-                          <div className="flex flex-wrap gap-2">
-                            {job.technologies.map((tech, i) => (
-                              <Badge
-                                key={i}
-                                variant="outline"
-                                className="bg-background"
-                              >
-                                {tech}
-                              </Badge>
-                            ))}
-                          </div>
-
-                          <div className="mt-8 pt-8 border-t">
-                            <h4 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground mb-4">
-                              Responsibilities
-                            </h4>
-                            <ul className="space-y-2">
-                              {job.responsibilities.map((responsibility, i) => (
-                                <li key={i} className="flex items-center gap-2">
-                                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary"></span>
-                                  <span className="text-sm">
-                                    {responsibility}
-                                  </span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-12">
+            {isLoadingBlogs
+              ? [...Array(3)].map((_, i) => (
+                  <div key={i} className="space-y-4">
+                    <Skeleton className="h-48 w-full" />
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-6 w-full" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-2/3" />
                   </div>
                 ))
-              ) : (
-                <div>No experience entries found</div>
-              )}
-            </div>
+              : blogs.map((blog:Blog) => (
+                  <BlogCard key={blog._id} blog={blog} variant="compact" />
+                ))}
           </div>
 
-          <div className="mt-16 text-center">
+          <div className="text-center">
             <Button asChild variant="outline" size="lg">
-              <Link href="/experience">View All Experiences</Link>
+              <Link href="/blog">
+                View All Posts
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
             </Button>
           </div>
         </div>
       </section>
 
-      {/* New Contact & Social Section */}
-      <section className="py-16 bg-slate-50 dark:bg-slate-900/50">
+      {/* Gallery Section */}
+      <GallerySection />
+
+      {/* Contact & Social Section */}
+      <section className="py-16 bg-muted/50">
         <div className="container mx-auto px-4 max-w-7xl">
+          <div className="mb-12 text-center">
+            <div className="inline-flex items-center px-3 py-1 rounded-full bg-black/5 border text-black dark:bg-black/10 border-black/10 text-sm font-medium mb-6 dark:text-white dark:border-white dark:border-white/30">
+              <span className="relative flex h-2 w-2 mr-2">
+                <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-black dark:bg-white opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-black dark:bg-white"></span>
+              </span>
+              Let's Connect
+            </div>
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground mb-4">
+              Get In Touch
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-12">
+              Have a question or want to collaborate? I'm always open to new
+              opportunities and interesting projects.
+            </p>
+          </div>
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <SocialConnectSection />
-            <div className="bg-white dark:bg-slate-800 rounded-md shadow-lg p-8 border border-slate-200 dark:border-slate-700">
+            <div className="bg-card rounded-md shadow-lg p-8 border border-border">
               <h3 className="text-2xl font-bold mb-2">Get In Touch</h3>
               <p className="text-muted-foreground mb-6">
                 Have a question or want to work together? Send me a message!
@@ -1015,7 +1203,7 @@ export default function Home() {
                   <input
                     id="name"
                     type="text"
-                    className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-md bg-transparent"
+                    className="w-full px-3 py-2 border border-input rounded-md bg-background"
                     placeholder="Your name"
                     value={formData.name}
                     onChange={handleInputChange}
@@ -1029,7 +1217,7 @@ export default function Home() {
                   <input
                     id="email"
                     type="email"
-                    className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-md bg-transparent"
+                    className="w-full px-3 py-2 border border-input rounded-md bg-background"
                     placeholder="Your email"
                     value={formData.email}
                     onChange={handleInputChange}
@@ -1042,7 +1230,7 @@ export default function Home() {
                   </label>
                   <textarea
                     id="message"
-                    className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-md bg-transparent min-h-[120px]"
+                    className="w-full px-3 py-2 border border-input rounded-md bg-background min-h-[120px]"
                     placeholder="Your message"
                     value={formData.message}
                     onChange={handleInputChange}
@@ -1062,7 +1250,7 @@ export default function Home() {
         </div>
       </section>
 
-      <footer className="border-t py-8">
+      <footer className="border-t border-border py-8 bg-background">
         <div className="container mx-auto px-4 text-center sm:px-6 lg:px-8">
           <p className="text-sm text-muted-foreground">
             © {new Date().getFullYear()} {profileData?.name || "Alex Morgan"}.

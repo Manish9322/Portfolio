@@ -10,6 +10,8 @@ export const portfolioApi = createApi({
     "Experience",
     "Messages",
     "Profile",
+    "Blog",
+    "Gallery",
   ],
   endpoints: (builder) => ({
     // ======================================== PROFILE ======================================== //
@@ -207,6 +209,100 @@ export const portfolioApi = createApi({
       }),
       invalidatesTags: ["Experience"],
     }),
+
+    // ======================================== BLOG ======================================== //
+
+    // Fetch blogs
+    getBlogs: builder.query({
+      query: () => "/blog",
+      providesTags: ["Blog"],
+    }),
+
+    // Add a blog
+    addBlog: builder.mutation({
+      query: (blog) => ({
+        url: "/blog",
+        method: "POST",
+        body: blog,
+      }),
+      invalidatesTags: ["Blog"],
+    }),
+
+    // Update a blog
+    updateBlog: builder.mutation({
+      query: ({ _id, ...rest }) => ({
+        url: "/blog",
+        method: "PUT",
+        body: { _id, ...rest },
+      }),
+      invalidatesTags: ["Blog"],
+    }),
+
+    // Delete a blog
+    deleteBlog: builder.mutation({
+      query: (_id) => ({
+        url: `/blog?id=${_id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Blog"],
+    }),
+
+    // Update blog order
+    updateBlogOrder: builder.mutation({
+      query: ({ orderedIds }) => ({
+        url: "/blog",
+        method: "PATCH",
+        body: { orderedIds },
+      }),
+      invalidatesTags: ["Blog"],
+    }),
+
+    // ======================================== GALLERY ======================================== //
+
+    // Fetch gallery
+    getGallery: builder.query({
+      query: () => "/gallery",
+      providesTags: ["Gallery"],
+    }),
+
+    // Add a gallery item
+    addGallery: builder.mutation({
+      query: (item) => ({
+        url: "/gallery",
+        method: "POST",
+        body: item,
+      }),
+      invalidatesTags: ["Gallery"],
+    }),
+
+    // Update a gallery item
+    updateGallery: builder.mutation({
+      query: ({ _id, ...rest }) => ({
+        url: "/gallery",
+        method: "PUT",
+        body: { _id, ...rest },
+      }),
+      invalidatesTags: ["Gallery"],
+    }),
+
+    // Delete a gallery item
+    deleteGallery: builder.mutation({
+      query: (_id) => ({
+        url: `/gallery?id=${_id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Gallery"],
+    }),
+
+    // Update gallery order
+    updateGalleryOrder: builder.mutation({
+      query: ({ orderedIds }) => ({
+        url: "/gallery",
+        method: "PATCH",
+        body: { orderedIds },
+      }),
+      invalidatesTags: ["Gallery"],
+    }),
   }),
 });
 
@@ -236,4 +332,16 @@ export const {
   useUpdateExperienceMutation,
   useDeleteExperienceMutation,
   useUpdateExperienceOrderMutation,
+
+  useGetBlogsQuery,
+  useAddBlogMutation,
+  useUpdateBlogMutation,
+  useDeleteBlogMutation,
+  useUpdateBlogOrderMutation,
+
+  useGetGalleryQuery,
+  useAddGalleryMutation,
+  useUpdateGalleryMutation,
+  useDeleteGalleryMutation,
+  useUpdateGalleryOrderMutation,
 } = portfolioApi;

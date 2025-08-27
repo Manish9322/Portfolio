@@ -123,22 +123,22 @@ export function SocialConnectSection() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <h3 className="text-2xl font-bold mb-2">Let's Connect</h3>
-        <p className="text-muted-foreground mb-6">
+        <h3 className="text-2xl font-bold mb-3">Let's Connect</h3>
+        <p className="text-muted-foreground">
           Follow me on social media to stay updated with my latest projects and insights.
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {socialPlatforms.map((platform) => (
           <div
             key={platform.name}
-            className="bg-white dark:bg-slate-800 rounded-md p-6 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col"
+            className="bg-card dark:bg-slate-800/90 rounded-xl p-6 border border-border shadow-sm hover:shadow-md transition-all duration-300 flex flex-col backdrop-blur-sm"
           >
-            <div className="flex items-center gap-3 mb-3">
-              <div className={`p-2 rounded-full text-white ${platform.color.split(" ")[0]}`}>{platform.icon}</div>
+            <div className="flex items-center gap-3 mb-4">
+              <div className={`p-2.5 rounded-full text-white ${platform.color.split(" ")[0]}`}>{platform.icon}</div>
               <h4 className="font-semibold">{platform.name}</h4>
             </div>
 
@@ -146,7 +146,7 @@ export function SocialConnectSection() {
 
             <Button
               variant="outline"
-              className="w-full justify-center gap-2 mt-auto"
+              className="w-full justify-center gap-2 mt-auto transition-all duration-200"
               onClick={() => handleConnectClick(platform)}
               disabled={!platform.url}
             >
@@ -156,16 +156,16 @@ export function SocialConnectSection() {
         ))}
       </div>
 
-      <div className="mt-6 flex flex-col items-center justify-center bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800/50 dark:to-indigo-900/20 p-6 rounded-md border border-blue-100 dark:border-slate-700">
-        <Badge variant="outline" className="mb-2">
+      <div className="flex flex-col items-center justify-center bg-gradient-to-r from-blue-50/50 to-indigo-50/50 dark:from-slate-800/50 dark:to-indigo-900/20 p-6 lg:p-8 rounded-xl border border-border/50 backdrop-blur-sm">
+        <Badge variant="outline" className="mb-3">
           Professional Network
         </Badge>
         <h4 className="text-lg font-medium mb-2">Join My Professional Network</h4>
-        <p className="text-sm text-center text-muted-foreground mb-4">
+        <p className="text-sm text-center text-muted-foreground mb-6">
           Let's collaborate and grow together. Connect with me on all platforms for exclusive content and opportunities.
         </p>
         <Button
-          className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+          className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all duration-200"
           onClick={() => {
             const hasUrls = socialPlatforms.some((platform) => platform.url)
             if (!hasUrls) {
