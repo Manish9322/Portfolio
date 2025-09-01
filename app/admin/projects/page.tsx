@@ -3,9 +3,11 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
-import { ArrowLeft, Plus, Edit, Trash } from "lucide-react"
-
+import { ArrowLeft, Plus, Edit, Trash, X, Globe, Github } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Dialog,
@@ -26,15 +28,32 @@ import {
   useDeleteProjectMutation
 } from "@/services/api"
 
+interface Screenshot {
+  url: string
+  caption: string
+}
+
+interface Screenshot {
+  url: string
+  caption: string
+}
+
 interface Project {
   _id?: string
   title: string
   description: string
+  longDescription?: string
   imageUrl: string
   tags: string[]
   liveUrl: string
   githubUrl: string
   featured: boolean
+  timeline?: string
+  role?: string
+  team?: string
+  challenges?: string[]
+  solutions?: string[]
+  screenshots?: Screenshot[]
 }
 
 export default function ProjectsPage() {
@@ -49,12 +68,20 @@ export default function ProjectsPage() {
   const [formData, setFormData] = useState<Project>({
     title: "",
     description: "",
+    longDescription: "",
     imageUrl: "/placeholder.svg?height=600&width=800",
     tags: [],
     liveUrl: "",
     githubUrl: "",
     featured: false,
+    timeline: "",
+    role: "",
+    team: "",
+    challenges: [],
+    solutions: [],
+    screenshots: [],
   });
+  const [activeTab, setActiveTab] = useState("basic");
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
 
@@ -105,9 +132,14 @@ export default function ProjectsPage() {
         tags: Array.isArray(formData.tags) 
           ? formData.tags 
           : (formData.tags as string).split(",").map((tag: string) => tag.trim()).filter((tag: string) => tag),
-        imageUrl: formData.imageUrl, // Ensure correct field name
-        liveUrl: formData.liveUrl,   // Ensure correct field name
-        githubUrl: formData.githubUrl, // Ensure correct field name
+        challenges: Array.isArray(formData.challenges) ? formData.challenges : [],
+        solutions: Array.isArray(formData.solutions) ? formData.solutions : [],
+        screenshots: Array.isArray(formData.screenshots) 
+          ? formData.screenshots.filter(s => s.url && s.caption)
+          : [],
+        imageUrl: formData.imageUrl,
+        liveUrl: formData.liveUrl,
+        githubUrl: formData.githubUrl,
       };
 
       if (isEditing && currentProject?._id) {
@@ -227,7 +259,7 @@ export default function ProjectsPage() {
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[800px]">
           <DialogHeader>
             <DialogTitle>{isEditing ? "Edit Project" : "Add New Project"}</DialogTitle>
             <DialogDescription>
@@ -236,7 +268,7 @@ export default function ProjectsPage() {
                 : "Fill in the details to add a new project to your portfolio."}
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid gap-4 py-4">
               <div className="space-y-2">
                 <Label htmlFor="title">Title</Label>

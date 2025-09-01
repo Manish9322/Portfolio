@@ -10,6 +10,10 @@ const ProjectSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    longDescription: {
+      type: String,
+      required: false,
+    },
     imageUrl: {
       type: String,
       required: true,
@@ -29,6 +33,33 @@ const ProjectSchema = new mongoose.Schema(
     featured: {
       type: Boolean,
       default: true,
+    },
+    timeline: {
+      type: String,
+      required: false,
+    },
+    role: {
+      type: String,
+      required: false,
+    },
+    team: {
+      type: String,
+      required: false,
+    },
+    challenges: {
+      type: [String],
+      default: [],
+    },
+    solutions: {
+      type: [String],
+      default: [],
+    },
+    screenshots: {
+      type: [{
+        url: String,
+        caption: String
+      }],
+      default: [],
     },
   },
   {
