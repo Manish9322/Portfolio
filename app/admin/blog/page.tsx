@@ -246,26 +246,33 @@ export default function BlogPage() {
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      const previewUrl = URL.createObjectURL(file)
-      setPreviewImage(previewUrl)
-      
-      // Upload the file
-      const formData = new FormData()
-      formData.append('file', file)
-      
       try {
+        // Create a local URL for immediate preview
+        const previewUrl = URL.createObjectURL(file)
+        setPreviewImage(previewUrl)
+        
+        // Upload the file
+        const formData = new FormData()
+        formData.append('file', file)
+        
         const response = await fetch('/api/upload', {
           method: 'POST',
           body: formData,
         })
         
+        if (!response.ok) throw new Error("Upload failed")
         const data = await response.json()
-        if (data.path) {
-          setFormData((prev) => ({
-            ...prev,
-            imageUrl: data.path,
-          }))
-        }
+        
+        // Update form data with server URL
+        setFormData((prev) => ({
+          ...prev,
+          imageUrl: data.url, // Use server URL from upload API
+        }))
+
+        toast({
+          title: "Success",
+          description: "Image uploaded successfully",
+        })
       } catch (error) {
         console.error('Error uploading file:', error)
         toast({
@@ -273,6 +280,8 @@ export default function BlogPage() {
           description: "Failed to upload image. Please try again.",
           variant: "destructive",
         })
+        // Reset preview on error
+        setPreviewImage(null)
       }
     }
   }

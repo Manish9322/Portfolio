@@ -1,11 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
-import { ArrowLeft, Plus, Edit, Trash, X, Globe, Github } from "lucide-react"
+import { ArrowLeft, Plus, Edit, Trash, X, Globe, Github, Upload } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "@/components/ui/use-toast"
 
 
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -58,6 +59,8 @@ interface Project {
 
 export default function ProjectsPage() {
   const router = useRouter()
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  
   const { data: projects = [], isLoading } = useGetProjectsQuery(undefined)
   const [addProject] = useAddProjectMutation()
   const [updateProject] = useUpdateProjectMutation()
@@ -65,6 +68,7 @@ export default function ProjectsPage() {
 
   const [isEditing, setIsEditing] = useState(false)
   const [currentProject, setCurrentProject] = useState<Project | null>(null)
+  const [previewImage, setPreviewImage] = useState<string | null>(null)
   const [formData, setFormData] = useState<Project>({
     title: "",
     description: "",
@@ -89,6 +93,7 @@ export default function ProjectsPage() {
   const handleEditProject = (project: Project) => {
     setIsEditing(true);
     setCurrentProject(project);
+    setPreviewImage(null);
     setFormData({
       ...project,
       imageUrl: project.imageUrl || "/placeholder.svg?height=600&width=800",
@@ -102,6 +107,7 @@ export default function ProjectsPage() {
   const handleNewProject = () => {
     setIsEditing(false)
     setCurrentProject(null)
+    setPreviewImage(null)
     setFormData({
       title: "",
       description: "",
@@ -112,6 +118,52 @@ export default function ProjectsPage() {
       featured: false,
     })
     setIsDialogOpen(true)
+  }
+
+  const handleImageUpload = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      try {
+        // Create a local URL for immediate preview
+        const previewUrl = URL.createObjectURL(file)
+        setPreviewImage(previewUrl)
+
+        // Upload the file to the server
+        const formData = new FormData()
+        formData.append("file", file)
+
+        const uploadResponse = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        })
+
+        if (!uploadResponse.ok) throw new Error("Upload failed")
+        const uploadData = await uploadResponse.json()
+
+        // Update form data with server URL
+        setFormData((prev) => ({
+          ...prev,
+          imageUrl: uploadData.url, // Use server URL
+        }))
+
+        toast({
+          title: "Success",
+          description: "Image uploaded successfully",
+        })
+      } catch (error) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to upload image",
+        })
+        // Reset preview on error
+        setPreviewImage(null)
+      }
+    }
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -286,8 +338,43 @@ export default function ProjectsPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="imageUrl">Image URL</Label>
-                <Input id="imageUrl" name="imageUrl" value={formData.imageUrl} onChange={handleInputChange} required />
+                <Label htmlFor="imageUrl">Project Image</Label>
+                <div className="flex flex-col gap-4">
+                  <div className="aspect-video w-full relative border rounded-lg overflow-hidden">
+                    <Image
+                      src={previewImage || formData.imageUrl || "/placeholder.svg"}
+                      alt="Project preview"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleImageUpload}
+                      className="flex-1"
+                    >
+                      <Upload className="mr-2 h-4 w-4" />
+                      Upload Image
+                    </Button>
+                    <Input
+                      id="imageUrl"
+                      name="imageUrl"
+                      value={formData.imageUrl}
+                      onChange={handleInputChange}
+                      placeholder="Or paste image URL"
+                      className="flex-1"
+                    />
+                  </div>
+                </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="tags">Tags (comma separated)</Label>

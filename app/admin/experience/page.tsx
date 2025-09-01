@@ -259,17 +259,45 @@ export default function ExperiencePage() {
     fileInputRef.current?.click()
   }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      // For now, create a local URL for preview
-      // TODO: Implement actual file upload to server
-      const previewUrl = URL.createObjectURL(file)
-      setPreviewLogo(previewUrl)
-      setFormData((prev) => ({
-        ...prev,
-        logo: previewUrl, // Replace with server URL after upload
-      }))
+      try {
+        // Create a local URL for immediate preview
+        const previewUrl = URL.createObjectURL(file)
+        setPreviewLogo(previewUrl)
+
+        // Upload the file to the server
+        const formData = new FormData()
+        formData.append("file", file)
+
+        const uploadResponse = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        })
+
+        if (!uploadResponse.ok) throw new Error("Upload failed")
+        const uploadData = await uploadResponse.json()
+
+        // Update form data with server URL
+        setFormData((prev) => ({
+          ...prev,
+          logo: uploadData.url, // Use server URL
+        }))
+
+        toast({
+          title: "Success",
+          description: "Logo uploaded successfully",
+        })
+      } catch (error) {
+        toast({
+          variant: "destructive",
+          title: "Error", 
+          description: "Failed to upload logo",
+        })
+        // Reset preview on error
+        setPreviewLogo(null)
+      }
     }
   }
 
