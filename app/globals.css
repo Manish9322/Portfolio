@@ -158,6 +158,25 @@ body {
   animation: marquee 40s linear infinite;
 }
 
+/* Faster marquee speed for mobile and tablet */
+@media (max-width: 1024px) {
+  .animate-marquee {
+    animation: marquee 10s linear infinite;
+  }
+}
+
+@media (max-width: 768px) {
+  .animate-marquee {
+    animation: marquee 10s linear infinite;
+  }
+}
+
+@media (max-width: 332px) {
+  .animate-marquee {
+    animation: marquee 10s linear infinite;
+  }
+}
+
 .pause-marquee:hover {
   animation-play-state: paused;
 }
@@ -165,5 +184,53 @@ body {
 @layer utilities {
   .bg-grid-white {
     background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 0V20M0 1H20' stroke='white' stroke-opacity='0.1' stroke-width='0.5'/%3E%3C/svg%3E%0A");
+  }
+}
+
+/* Stat cards mobile optimizations */
+@media (max-width: 640px) {
+  .stat-grid {
+    gap: 0.75rem;
+  }
+  
+  .stat-card {
+    min-height: 120px;
+  }
+  
+  .stat-value {
+    font-size: 1.5rem;
+    line-height: 1.2;
+  }
+  
+  .stat-label {
+    font-size: 0.75rem;
+    line-height: 1.2;
+  }
+  
+  .stat-subtext {
+    font-size: 0.7rem;
+    line-height: 1.1;
+  }
+}
+
+@media (max-width: 480px) {
+  .stat-grid {
+    gap: 0.5rem;
+  }
+  
+  .stat-card {
+    min-height: 110px;
+  }
+  
+  .stat-value {
+    font-size: 1.25rem;
+  }
+  
+  .stat-label {
+    font-size: 0.7rem;
+  }
+  
+  .stat-subtext {
+    font-size: 0.65rem;
   }
 }

@@ -249,7 +249,7 @@ export function HeroSection() {
       .slice(0, 5) || [];
 
   return (
-    <section className="relative bg-background text-foreground py-24 md:py-16 overflow-hidden min-h-screen flex items-center">
+    <section className="relative bg-background text-foreground py-16 md:py-16 overflow-hidden min-h-screen flex items-center">
       {/* Enhanced Background Elements */}
       <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-gradient-to-b from-primary/10 dark:from-white/10 to-transparent rounded-full blur-3xl"></div>
       <div className="absolute bottom-0 left-0 w-1/4 h-1/4 bg-gradient-to-t from-primary/10 dark:from-white/10 to-transparent rounded-full blur-3xl"></div>
@@ -290,7 +290,7 @@ export function HeroSection() {
           <div className="flex flex-col items-center text-center">
             <div className="space-y-8 max-w-6xl">
               <div>
-                <div className="inline-flex items-center px-3 py-1 rounded-full bg-black/5 border text-black dark:bg-black/10 border-black/10 text-sm font-medium mb-6 dark:text-white dark:border-white dark:border-white/30">
+                <div className="inline-flex items-center px-3 py-1 rounded-full bg-black/5 border text-gray-900 dark:bg-black/10 border-black/10 text-sm font-medium mb-6 dark:text-white dark:border-white dark:border-white/30">
                   <span className="relative flex h-2 w-2 mr-2">
                     <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-black dark:bg-white opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-black dark:bg-white"></span>
@@ -310,7 +310,7 @@ export function HeroSection() {
                   </span>
                 </h1>
 
-                <h2 className="text-2xl md:text-3xl font-medium text-black dark:text-white mt-4 mb-2">
+                <h2 className="text-2xl font-bold md:text-3xl text-gray-900 dark:text-white mt-2 mb-2">
                   {profileData?.title}
                 </h2>
 
@@ -320,21 +320,17 @@ export function HeroSection() {
                   experiences.
                 </p>
 
-                {/* Top Skills Preview */}
-                {topSkills.length > 0 && (
-                  <div className="mb-8">
-                    <div className="flex flex-wrap justify-center gap-2 max-w-2xl mx-auto">
-                      {topSkills.map((skill: any, index: any) => (
-                        <span key={index} className="">
-                          <Badge key={index} variant="secondary" className="border border-gray-500">
-                            {skill}
-                          </Badge>
-                        </span>
-                      ))}
-                    </div>
+                {/* Location */}
+                {profileData?.location && (
+                  <div className="inline-flex items-center px-3 py-1 rounded-full bg-black/5 border text-gray-900 dark:bg-black/10 border-black/10 text-sm font-medium dark:text-white dark:border-white dark:border-white/30">
+                    <Badge
+                      variant="default"
+                    >
+                      <MapPin className="h-3 w-3 text-white dark:text-gray-900 leading-relaxed max-w-3xl mr-1" />
+                      <span>{profileData.location}</span>
+                    </Badge>
                   </div>
                 )}
-
               </div>
 
               <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-4">
@@ -342,7 +338,7 @@ export function HeroSection() {
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Button
                     size="lg"
-                    className="bg-black hover:text-black hover:border hover:bg-white text-white transition-all duration-300 shadow-lg hover:shadow-gray-900/20 dark:bg-transparent dark:border-white dark:border dark:hover:bg-gray-800 dark:hover:text-white group"
+                    className="bg-gray-900 hover:text-gray-900 hover:border hover:bg-white/90 backdrop-blur-sm text-white transition-all duration-300 shadow-lg hover:shadow-gray-900/20 dark:bg-transparent dark:border-white dark:border dark:hover:bg-white/10 dark:hover:backdrop-blur-sm dark:hover:text-white group"
                     asChild
                   >
                     <Link href="/work" className="flex items-center">
@@ -354,7 +350,7 @@ export function HeroSection() {
                   <Button
                     size="lg"
                     variant="outline"
-                    className="bg-black hover:text-black hover:border hover:bg-white text-white transition-all duration-300 shadow-lg hover:shadow-gray-900/20 dark:bg-transparent dark:border-white dark:border dark:hover:bg-gray-800 dark:hover:text-white group"
+                    className="bg-gray-900 hover:text-gray-900 hover:border hover:bg-white/90 backdrop-blur-sm text-white transition-all duration-300 shadow-lg hover:shadow-gray-900/20 dark:bg-transparent dark:border-white dark:border dark:hover:bg-white/10 dark:hover:backdrop-blur-sm dark:hover:text-white group"
                     asChild
                   >
                     <Link href="/contact" className="flex items-center">
@@ -375,7 +371,7 @@ export function HeroSection() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="text-black dark:text-white hover:text-white hover:bg-black dark:hover:text-gray-900 dark:hover:bg-white transition-all duration-300 hover:scale-110"
+                        className="text-gray-900 dark:text-white hover:text-white hover:bg-black/90 hover:backdrop-blur-sm dark:hover:text-gray-900 dark:hover:bg-white/90 dark:hover:backdrop-blur-sm transition-all duration-300 hover:scale-110"
                       >
                         <Github className="h-5 w-5" />
                       </Button>
@@ -391,7 +387,7 @@ export function HeroSection() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="text-black dark:text-white hover:text-white hover:bg-black dark:hover:text-gray-900 dark:hover:bg-white transition-all duration-300 hover:scale-110"
+                        className="text-gray-900 dark:text-white hover:text-white hover:bg-black/90 hover:backdrop-blur-sm dark:hover:text-gray-900 dark:hover:bg-white/90 dark:hover:backdrop-blur-sm transition-all duration-300 hover:scale-110"
                       >
                         <Linkedin className="h-5 w-5 " />
                       </Button>
@@ -407,7 +403,7 @@ export function HeroSection() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="text-black dark:text-white hover:text-white hover:bg-black dark:hover:text-gray-900 dark:hover:bg-white transition-all duration-300 hover:scale-110"
+                        className="text-gray-900 dark:text-white hover:text-white hover:bg-black/90 hover:backdrop-blur-sm dark:hover:text-gray-900 dark:hover:bg-white/90 dark:hover:backdrop-blur-sm transition-all duration-300 hover:scale-110"
                       >
                         <Twitter className="h-5 w-5 " />
                       </Button>
@@ -423,7 +419,7 @@ export function HeroSection() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="text-black dark:text-white hover:text-white hover:bg-black dark:hover:text-gray-900 dark:hover:bg-white transition-all duration-300 hover:scale-110"
+                        className="text-gray-900 dark:text-white hover:text-white hover:bg-black/90 hover:backdrop-blur-sm dark:hover:text-gray-900 dark:hover:bg-white/90 dark:hover:backdrop-blur-sm transition-all duration-300 hover:scale-110"
                       >
                         <Instagram className="h-5 w-5 " />
                       </Button>
@@ -436,7 +432,7 @@ export function HeroSection() {
                   <a href={profileData.resumeUrl} download>
                     <Button
                       size="lg"
-                      className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white transition-all duration-300 shadow-lg hover:shadow-primary/20 group"
+                      className="bg-gray-900 hover:text-gray-900 hover:border hover:bg-white/90 backdrop-blur-sm text-white transition-all duration-300 shadow-lg hover:shadow-gray-900/20 dark:bg-transparent dark:border-white dark:border dark:hover:bg-white/10 dark:hover:backdrop-blur-sm dark:hover:text-white group"
                     >
                       Download Resume
                       <Download className="ml-2 h-4 w-4 group-hover:translate-y-1 transition-transform" />
@@ -449,16 +445,40 @@ export function HeroSection() {
         )}
 
         {/* Stats Section */}
-        <div className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+        <div className="mt-16 md:mt-20 stat-grid grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 lg:gap-8">
           {isLoadingExperiences ||
           isLoadingProjects ||
           isLoadingSkills ||
           isLoadingEducation
             ? [...Array(4)].map((_, index) => (
                 <div key={index} className="relative group">
-                  <div className="relative p-6 border border-black/25 rounded-md bg-card/50 backdrop-blur-sm">
-                    <Skeleton className="h-8 w-16 mb-1" />
-                    <Skeleton className="h-4 w-32" />
+                  <div className="stat-card relative p-4 sm:p-5 md:p-6 rounded-md bg-card hover:bg-card/80 border border-gray/50 hover:border-primary/50 transition-all duration-300 overflow-hidden shadow-lg hover:shadow-xl">
+                    {/* Background Patterns */}
+                    <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:20px_20px]" />
+
+                    {/* Gradient Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                    {/* Main Content */}
+                    <div className="relative z-10">
+                      <div className="flex items-center justify-between mb-3 md:mb-4">
+                        <Skeleton className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-lg" />
+                        <Skeleton className="w-2 h-2 rounded-full" />
+                      </div>
+
+                      <div className="space-y-1.5 md:space-y-2">
+                        <Skeleton className="h-6 sm:h-7 md:h-8 w-12 sm:w-14 md:w-16 mb-1" />
+                        <Skeleton className="h-3 sm:h-3.5 md:h-4 w-24 sm:w-28 md:w-32" />
+                        <Skeleton className="h-2.5 sm:h-3 md:h-3 w-20 sm:w-22 md:w-24" />
+                      </div>
+                    </div>
+
+                    {/* Corner Accents */}
+                    <div className="absolute -right-8 sm:-right-10 md:-right-12 -top-8 sm:-top-10 md:-top-12 w-16 sm:w-20 md:w-24 h-16 sm:h-20 md:h-24 bg-black/10 rounded-full blur-2xl transition-all duration-500 group-hover:scale-150" />
+                    <div className="absolute -right-1.5 sm:-right-2 md:-right-2 -top-1.5 sm:-top-2 md:-top-2 w-6 sm:w-7 md:w-8 h-6 sm:h-7 md:h-8 bg-black/20 rounded-full blur-xl transition-all duration-500 group-hover:scale-150" />
+
+                    {/* Bottom Accent Line */}
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   </div>
                 </div>
               ))
@@ -469,7 +489,7 @@ export function HeroSection() {
                   subtext: "Professional Development",
                   icon: (
                     <svg
-                      className="w-8 h-8 mb-4 text-primary/80"
+                      className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 mb-3 md:mb-4 text-primary/80"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -489,7 +509,7 @@ export function HeroSection() {
                   subtext: "Delivered Successfully",
                   icon: (
                     <svg
-                      className="w-8 h-8 mb-4 text-primary/80"
+                      className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 mb-3 md:mb-4 text-primary/80"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -509,7 +529,7 @@ export function HeroSection() {
                   subtext: "And Growing Daily",
                   icon: (
                     <svg
-                      className="w-8 h-8 mb-4 text-primary/80"
+                      className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 mb-3 md:mb-4 text-primary/80"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -529,7 +549,7 @@ export function HeroSection() {
                   subtext: "Professional Growth",
                   icon: (
                     <svg
-                      className="w-8 h-8 mb-4 text-primary/80"
+                      className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 mb-3 md:mb-4 text-primary/80"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -545,7 +565,7 @@ export function HeroSection() {
                 },
               ].map((stat, index) => (
                 <div key={index} className="relative group">
-                  <div className="relative p-6 rounded-md bg-card hover:bg-card/80 border border-gray/50 hover:border-primary/50 transition-all duration-300 overflow-hidden shadow-lg hover:shadow-xl">
+                  <div className="stat-card relative p-4 sm:p-5 md:p-6 rounded-md bg-card hover:bg-card/80 border border-gray/50 hover:border-primary/50 transition-all duration-300 overflow-hidden shadow-lg hover:shadow-xl">
                     {/* Background Patterns */}
                     <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:20px_20px]" />
 
@@ -554,11 +574,11 @@ export function HeroSection() {
 
                     {/* Main Content */}
                     <div className="relative z-10">
-                      <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center justify-between mb-3 md:mb-4">
                         {stat.icon}
-                        <span className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <span className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 rounded-full bg-primary/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                           <svg
-                            className="w-4 h-4 text-primary dark:text-white"
+                            className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 text-primary dark:text-white"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -573,15 +593,15 @@ export function HeroSection() {
                         </span>
                       </div>
 
-                      <div className="space-y-2">
-                        <div className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent animate-gradient">
+                      <div className="space-y-1.5 md:space-y-2">
+                        <div className="stat-value text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent animate-gradient">
                           {stat.value}
                         </div>
-                        <div className="space-y-1">
-                          <div className="text-sm font-medium text-foreground">
+                        <div className="space-y-0.5 md:space-y-1">
+                          <div className="stat-label text-xs sm:text-sm md:text-sm font-medium text-foreground leading-tight">
                             {stat.label}
                           </div>
-                          <div className="text-xs text-muted-foreground/80">
+                          <div className="stat-subtext text-xs md:text-xs text-muted-foreground/80 leading-tight">
                             {stat.subtext}
                           </div>
                         </div>
@@ -589,24 +609,14 @@ export function HeroSection() {
                     </div>
 
                     {/* Corner Accents */}
-                    <div className="absolute -right-12 -top-12 w-24 h-24 bg-black/10 rounded-full blur-2xl transition-all duration-500 group-hover:scale-150" />
-                    <div className="absolute -right-2 -top-2 w-8 h-8 bg-black/20 rounded-full blur-xl transition-all duration-500 group-hover:scale-150" />
+                    <div className="absolute -right-8 sm:-right-10 md:-right-12 -top-8 sm:-top-10 md:-top-12 w-16 sm:w-20 md:w-24 h-16 sm:h-20 md:h-24 bg-black/10 rounded-full blur-2xl transition-all duration-500 group-hover:scale-150" />
+                    <div className="absolute -right-1.5 sm:-right-2 md:-right-2 -top-1.5 sm:-top-2 md:-top-2 w-6 sm:w-7 md:w-8 h-6 sm:h-7 md:h-8 bg-black/20 rounded-full blur-xl transition-all duration-500 group-hover:scale-150" />
 
                     {/* Bottom Accent Line */}
                     <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   </div>
                 </div>
               ))}
-        </div>
-
-        {/* Scroll Indicator */}
-        <div className="mt-16 flex flex-col items-center animate-bounce">
-          <span className="text-sm text-gray-500 dark:text-gray-400 mb-2">
-            Scroll to explore
-          </span>
-          <div className="w-6 h-10 border-2 border-gray-300 dark:border-gray-600 rounded-full flex justify-center">
-            <div className="w-1 h-3 bg-gray-500 dark:bg-gray-400 rounded-full mt-2 animate-pulse"></div>
-          </div>
         </div>
 
         {/* Background Decoration */}

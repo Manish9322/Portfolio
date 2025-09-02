@@ -135,55 +135,89 @@ export function SocialConnectSection() {
         {socialPlatforms.map((platform) => (
           <div
             key={platform.name}
-            className="bg-card dark:bg-slate-800/90 rounded-xl p-6 border border-border shadow-sm hover:shadow-md transition-all duration-300 flex flex-col backdrop-blur-sm"
+            className="relative group p-6 rounded-md bg-card hover:bg-card/80 border border-gray/50 hover:border-primary/50 transition-all duration-300 overflow-hidden shadow-lg hover:shadow-xl backdrop-blur-sm"
           >
-            <div className="flex items-center gap-3 mb-4">
-              <div className={`p-2.5 rounded-full text-white ${platform.color.split(" ")[0]}`}>{platform.icon}</div>
-              <h4 className="font-semibold">{platform.name}</h4>
+            {/* Background Patterns */}
+            <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:20px_20px]" />
+
+            {/* Gradient Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+            {/* Main Content */}
+            <div className="relative z-10 flex flex-col h-full">
+              <div className="flex items-center gap-3 mb-4">
+                <div className={`p-2.5 rounded-full text-white ${platform.color.split(" ")[0]}`}>{platform.icon}</div>
+                <h4 className="font-semibold">{platform.name}</h4>
+              </div>
+
+              <p className="text-sm text-muted-foreground mb-4 flex-grow">{platform.description}</p>
+
+              <Button
+                variant="outline"
+                className="w-full justify-center gap-2 mt-auto transition-all duration-200"
+                onClick={() => handleConnectClick(platform)}
+                disabled={!platform.url}
+              >
+                Connect <ExternalLink className="h-4 w-4" />
+              </Button>
             </div>
 
-            <p className="text-sm text-muted-foreground mb-4 flex-grow">{platform.description}</p>
+            {/* Corner Accents */}
+            <div className="absolute -right-12 -top-12 w-24 h-24 bg-black/10 dark:bg-white/5 rounded-full blur-2xl transition-all duration-500 group-hover:scale-150" />
+            <div className="absolute -right-2 -top-2 w-8 h-8 bg-black/20 dark:bg-white/10 rounded-full blur-xl transition-all duration-500 group-hover:scale-150" />
 
-            <Button
-              variant="outline"
-              className="w-full justify-center gap-2 mt-auto transition-all duration-200"
-              onClick={() => handleConnectClick(platform)}
-              disabled={!platform.url}
-            >
-              Connect <ExternalLink className="h-4 w-4" />
-            </Button>
+            {/* Bottom Accent Line */}
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </div>
         ))}
       </div>
 
-      <div className="flex flex-col items-center justify-center bg-gradient-to-r from-blue-50/50 to-indigo-50/50 dark:from-slate-800/50 dark:to-indigo-900/20 p-6 lg:p-8 rounded-xl border border-border/50 backdrop-blur-sm">
-        <Badge variant="outline" className="mb-3">
-          Professional Network
-        </Badge>
-        <h4 className="text-lg font-medium mb-2">Join My Professional Network</h4>
-        <p className="text-sm text-center text-muted-foreground mb-6">
-          Let's collaborate and grow together. Connect with me on all platforms for exclusive content and opportunities.
-        </p>
-        <Button
-          className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all duration-200"
-          onClick={() => {
-            const hasUrls = socialPlatforms.some((platform) => platform.url)
-            if (!hasUrls) {
-              toast({
-                title: "No Social Links Available",
-                description: "Please set your social media URLs in your profile.",
-                variant: "destructive",
-              })
-              return
-            }
-            toast({
-              title: "Thank you!",
-              description: "Connection requests have been sent to all platforms.",
-            })
-          }}
-        >
-          Connect on All Platforms
-        </Button>
+      <div className="relative group overflow-hidden">
+        <div className="relative p-6 lg:p-8 rounded-md bg-card hover:bg-card/80 border border-gray/50 hover:border-primary/50 transition-all duration-300 shadow-lg hover:shadow-xl backdrop-blur-sm">
+          {/* Background Patterns */}
+          <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:20px_20px]" />
+
+          {/* Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+          {/* Main Content */}
+          <div className="relative z-10 flex flex-col items-center justify-center">
+            <Badge variant="outline" className="mb-3">
+              Professional Network
+            </Badge>
+            <h4 className="text-lg font-medium mb-2">Join My Professional Network</h4>
+            <p className="text-sm text-center text-muted-foreground mb-6">
+              Let's collaborate and grow together. Connect with me on all platforms for exclusive content and opportunities.
+            </p>
+            <Button
+              className="bg-black hover:text-black hover:border hover:bg-white/90 backdrop-blur-sm text-white transition-all duration-300 shadow-lg hover:shadow-gray-900/20 dark:bg-transparent dark:border-white dark:border dark:hover:bg-white/10 dark:hover:backdrop-blur-sm dark:hover:text-white"
+              onClick={() => {
+                const hasUrls = socialPlatforms.some((platform) => platform.url)
+                if (!hasUrls) {
+                  toast({
+                    title: "No Social Links Available",
+                    description: "Please set your social media URLs in your profile.",
+                    variant: "destructive",
+                  })
+                  return
+                }
+                toast({
+                  title: "Thank you!",
+                  description: "Connection requests have been sent to all platforms.",
+                })
+              }}
+            >
+              Connect on All Platforms
+            </Button>
+          </div>
+
+          {/* Corner Accents */}
+          <div className="absolute -right-12 -top-12 w-24 h-24 bg-black/10 dark:bg-white/5 rounded-full blur-2xl transition-all duration-500 group-hover:scale-150" />
+          <div className="absolute -right-2 -top-2 w-8 h-8 bg-black/20 dark:bg-white/10 rounded-full blur-xl transition-all duration-500 group-hover:scale-150" />
+
+          {/* Bottom Accent Line */}
+          <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        </div>
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
