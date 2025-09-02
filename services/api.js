@@ -87,6 +87,12 @@ export const portfolioApi = createApi({
       providesTags: ["Projects"],
     }),
 
+    // Fetch single project
+    getProject: builder.query({
+      query: (id) => `/projects/${id}`,
+      providesTags: (result, error, id) => [{ type: "Projects", id }],
+    }),
+
     // Add a project
     addProject: builder.mutation({
       query: (project) => ({
@@ -317,6 +323,7 @@ export const {
   useUpdateSkillOrderMutation,
 
   useGetProjectsQuery,
+  useGetProjectQuery,
   useAddProjectMutation,
   useUpdateProjectMutation,
   useDeleteProjectMutation,

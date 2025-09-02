@@ -111,12 +111,20 @@ export default function ProjectsPage() {
     setFormData({
       title: "",
       description: "",
+      longDescription: "",
       imageUrl: "/placeholder.svg?height=600&width=800",
       tags: [],
       liveUrl: "",
       githubUrl: "",
       featured: false,
+      timeline: "",
+      role: "",
+      team: "",
+      challenges: [],
+      solutions: [],
+      screenshots: [],
     })
+    setActiveTab("basic")
     setIsDialogOpen(true)
   }
 
@@ -311,7 +319,7 @@ export default function ProjectsPage() {
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[800px]">
+        <DialogContent className="sm:max-w-[900px] max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{isEditing ? "Edit Project" : "Add New Project"}</DialogTitle>
             <DialogDescription>
@@ -321,90 +329,242 @@ export default function ProjectsPage() {
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid gap-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="title">Title</Label>
-                <Input id="title" name="title" value={formData.title} onChange={handleInputChange} required />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  required
-                  className="min-h-[100px]"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="imageUrl">Project Image</Label>
-                <div className="flex flex-col gap-4">
-                  <div className="aspect-video w-full relative border rounded-lg overflow-hidden">
-                    <Image
-                      src={previewImage || formData.imageUrl || "/placeholder.svg"}
-                      alt="Project preview"
-                      fill
-                      className="object-cover"
-                    />
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="basic">Basic Info</TabsTrigger>
+                <TabsTrigger value="details">Details</TabsTrigger>
+                <TabsTrigger value="challenges">Challenges & Solutions</TabsTrigger>
+                <TabsTrigger value="screenshots">Screenshots</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="basic" className="space-y-4 mt-6">
+                <div className="space-y-2">
+                  <Label htmlFor="title">Title</Label>
+                  <Input id="title" name="title" value={formData.title} onChange={handleInputChange} required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="description">Short Description</Label>
+                  <Textarea
+                    id="description"
+                    name="description"
+                    value={formData.description}
+                    onChange={handleInputChange}
+                    required
+                    className="min-h-[100px]"
+                    placeholder="Brief description for project cards"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="longDescription">Long Description</Label>
+                  <Textarea
+                    id="longDescription"
+                    name="longDescription"
+                    value={formData.longDescription || ""}
+                    onChange={handleInputChange}
+                    className="min-h-[150px]"
+                    placeholder="Detailed project description with features, technologies used, etc."
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="imageUrl">Project Image</Label>
+                  <div className="flex flex-col gap-4">
+                    <div className="aspect-video w-full relative border rounded-lg overflow-hidden">
+                      <Image
+                        src={previewImage || formData.imageUrl || "/placeholder.svg"}
+                        alt="Project preview"
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleImageUpload}
+                        className="flex-1"
+                      >
+                        <Upload className="mr-2 h-4 w-4" />
+                        Upload Image
+                      </Button>
+                      <Input
+                        id="imageUrl"
+                        name="imageUrl"
+                        value={formData.imageUrl}
+                        onChange={handleInputChange}
+                        placeholder="Or paste image URL"
+                        className="flex-1"
+                      />
+                    </div>
                   </div>
-                  <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={handleImageUpload}
-                      className="flex-1"
-                    >
-                      <Upload className="mr-2 h-4 w-4" />
-                      Upload Image
-                    </Button>
-                    <Input
-                      id="imageUrl"
-                      name="imageUrl"
-                      value={formData.imageUrl}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="featured"
+                    checked={formData.featured}
+                    onCheckedChange={(checked) => setFormData({ ...formData, featured: checked })}
+                  />
+                  <Label htmlFor="featured">Featured Project</Label>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="details" className="space-y-4 mt-6">
+                <div className="space-y-2">
+                  <Label htmlFor="tags">Tags (comma separated)</Label>
+                  <Input
+                    id="tags"
+                    name="tags"
+                    value={Array.isArray(formData.tags) ? formData.tags.join(", ") : formData.tags}
+                    onChange={handleInputChange}
+                    placeholder="React, TypeScript, Tailwind CSS"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="liveUrl">Live Link</Label>
+                    <Input id="liveUrl" name="liveUrl" value={formData.liveUrl} onChange={handleInputChange} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="githubUrl">Github Link</Label>
+                    <Input id="githubUrl" name="githubUrl" value={formData.githubUrl} onChange={handleInputChange} />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="timeline">Timeline</Label>
+                    <Input 
+                      id="timeline" 
+                      name="timeline" 
+                      value={formData.timeline || ""} 
                       onChange={handleInputChange}
-                      placeholder="Or paste image URL"
-                      className="flex-1"
+                      placeholder="e.g., Jan 2023 - Apr 2023"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="role">Role</Label>
+                    <Input 
+                      id="role" 
+                      name="role" 
+                      value={formData.role || ""} 
+                      onChange={handleInputChange}
+                      placeholder="e.g., Lead Developer, Full Stack Developer"
                     />
                   </div>
                 </div>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="hidden"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="tags">Tags (comma separated)</Label>
-                <Input
-                  id="tags"
-                  name="tags"
-                  value={Array.isArray(formData.tags) ? formData.tags.join(", ") : formData.tags}
-                  onChange={handleInputChange}
-                  placeholder="React, TypeScript, Tailwind CSS"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="liveUrl">Live Link</Label>
-                  <Input id="liveUrl" name="liveUrl" value={formData.liveUrl} onChange={handleInputChange} />
+                  <Label htmlFor="team">Team Size</Label>
+                  <Input 
+                    id="team" 
+                    name="team" 
+                    value={formData.team || ""} 
+                    onChange={handleInputChange}
+                    placeholder="e.g., 4 members, Solo project"
+                  />
+                </div>
+              </TabsContent>
+
+              <TabsContent value="challenges" className="space-y-4 mt-6">
+                <div className="space-y-2">
+                  <Label htmlFor="challenges">Challenges (one per line)</Label>
+                  <Textarea
+                    id="challenges"
+                    name="challenges"
+                    value={Array.isArray(formData.challenges) ? formData.challenges.join('\n') : ''}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      challenges: e.target.value.split('\n').filter(line => line.trim())
+                    })}
+                    className="min-h-[120px]"
+                    placeholder="Enter each challenge on a new line..."
+                  />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="githubUrl">Github Link</Label>
-                  <Input id="githubUrl" name="githubUrl" value={formData.githubUrl} onChange={handleInputChange} />
+                  <Label htmlFor="solutions">Solutions (one per line)</Label>
+                  <Textarea
+                    id="solutions"
+                    name="solutions"
+                    value={Array.isArray(formData.solutions) ? formData.solutions.join('\n') : ''}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      solutions: e.target.value.split('\n').filter(line => line.trim())
+                    })}
+                    className="min-h-[120px]"
+                    placeholder="Enter each solution on a new line..."
+                  />
                 </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="featured"
-                  checked={formData.featured}
-                  onCheckedChange={(checked) => setFormData({ ...formData, featured: checked })}
-                />
-                <Label htmlFor="featured">Featured Project</Label>
-              </div>
-            </div>
+              </TabsContent>
+
+              <TabsContent value="screenshots" className="space-y-4 mt-6">
+                <div className="space-y-4">
+                  <Label>Project Screenshots</Label>
+                  {formData.screenshots && formData.screenshots.map((screenshot, index) => (
+                    <div key={index} className="grid grid-cols-3 gap-4 p-4 border rounded-lg">
+                      <div className="col-span-2 space-y-2">
+                        <Input
+                          placeholder="Screenshot URL"
+                          value={screenshot.url}
+                          onChange={(e) => {
+                            const updatedScreenshots = [...(formData.screenshots || [])]
+                            updatedScreenshots[index] = { ...screenshot, url: e.target.value }
+                            setFormData({ ...formData, screenshots: updatedScreenshots })
+                          }}
+                        />
+                        <Input
+                          placeholder="Caption"
+                          value={screenshot.caption}
+                          onChange={(e) => {
+                            const updatedScreenshots = [...(formData.screenshots || [])]
+                            updatedScreenshots[index] = { ...screenshot, caption: e.target.value }
+                            setFormData({ ...formData, screenshots: updatedScreenshots })
+                          }}
+                        />
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        {screenshot.url && (
+                          <div className="aspect-video relative border rounded overflow-hidden">
+                            <Image
+                              src={screenshot.url}
+                              alt={screenshot.caption || 'Screenshot'}
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                        )}
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => {
+                            const updatedScreenshots = formData.screenshots?.filter((_, i) => i !== index) || []
+                            setFormData({ ...formData, screenshots: updatedScreenshots })
+                          }}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      const newScreenshots = [...(formData.screenshots || []), { url: '', caption: '' }]
+                      setFormData({ ...formData, screenshots: newScreenshots })
+                    }}
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add Screenshot
+                  </Button>
+                </div>
+              </TabsContent>
+            </Tabs>
+            
             <DialogFooter>
               <Button type="submit" disabled={isSaving}>
                 {isSaving ? "Saving..." : isEditing ? "Update Project" : "Add Project"}

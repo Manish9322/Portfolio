@@ -14,6 +14,7 @@ import {
   SkillsSection,
   ContactSection,
   FooterSection,
+  MarqueeStrip,
 } from "@/components/home";
 import BlogsSection from "@/components/home/BlogsSection";
 
@@ -324,6 +325,9 @@ export default function Home() {
 
   return (
     <div className="flex min-h-screen flex-col">
+      {/* Recent Updates Marquee */}
+      <MarqueeStrip />
+
       {/* Hero Section */}
       <HeroSection />
 

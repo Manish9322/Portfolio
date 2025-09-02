@@ -25,7 +25,7 @@ export function ThemeToggle() {
   }
 
   return (
-    <div className="fixed top-4 right-4 z-50 md:top-6 md:right-6">
+    <div className="fixed top-4 right-4 z-50 md:top-14 md:right-6">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button 

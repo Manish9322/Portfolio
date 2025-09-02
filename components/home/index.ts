@@ -6,5 +6,5 @@ export { default as ContactSection } from './ContactSection'
 export { default as FooterSection } from './FooterSection'
 export { default as FeaturedProjectsSection } from './FeaturedProjectsSection'
 export { default as GallerySection } from './GallerySection'
-
 export { default as TestimonialSection } from './TestimonialSection'
+export { default as MarqueeStrip } from './MarqueeStrip'

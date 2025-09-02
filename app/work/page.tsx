@@ -1,52 +1,26 @@
+"use client"
+
 import Image from "next/image"
 import Link from "next/link"
-import { ExternalLink, Github } from "lucide-react"
+import { ExternalLink, Github, Eye } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { getPortfolioData } from "@/lib/portfolio-data"
+import { useGetProjectsQuery } from "@/services/api"
+
+interface Project {
+  _id?: string
+  title: string
+  description: string
+  imageUrl: string
+  tags: string[]
+  liveUrl: string
+  githubUrl: string
+  featured: boolean
+}
 
 export default function WorkPage() {
-  // In a real implementation, this would fetch from your database
-  const { featuredProjects: projects } = getPortfolioData()
-
-  // In a real app, you would fetch all projects, not just featured ones
-  const allProjects = [
-    ...projects,
-    {
-      id: 4,
-      title: "Portfolio Website",
-      description:
-        "A professional portfolio website showcasing my work and skills with an admin panel for content management.",
-      image: "/placeholder.svg?height=600&width=800",
-      tags: ["Next.js", "React", "Tailwind CSS", "TypeScript"],
-      link: "#",
-      github: "#",
-      featured: false,
-    },
-    {
-      id: 5,
-      title: "Task Management App",
-      description:
-        "A collaborative task management application with real-time updates, notifications, and team workspaces.",
-      image: "/placeholder.svg?height=600&width=800",
-      tags: ["React", "Firebase", "Material UI", "Redux"],
-      link: "#",
-      github: "#",
-      featured: false,
-    },
-    {
-      id: 6,
-      title: "Weather Dashboard",
-      description:
-        "A weather dashboard that provides current conditions and forecasts for multiple locations with interactive maps.",
-      image: "/placeholder.svg?height=600&width=800",
-      tags: ["JavaScript", "Weather API", "Chart.js", "Leaflet"],
-      link: "#",
-      github: "#",
-      featured: false,
-    },
-  ]
+  const { data: projects = [], isLoading } = useGetProjectsQuery(undefined)
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -54,7 +28,7 @@ export default function WorkPage() {
       <header className="border-b">
         <div className="container mx-auto flex h-16 items-center justify-between px-4 max-w-7xl">
           <Link href="/" className="text-xl font-bold">
-            Alex Morgan
+            Portfolio
           </Link>
           <nav className="flex items-center gap-6">
             <Link href="/" className="text-sm font-medium text-muted-foreground hover:text-foreground">
@@ -86,51 +60,85 @@ export default function WorkPage() {
         {/* Projects Grid */}
         <section className="py-16">
           <div className="container mx-auto px-4 max-w-7xl">
-            <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-3">
-              {allProjects.map((project) => (
-                <div
-                  key={project.id}
-                  className="group flex flex-col overflow-hidden rounded-lg border bg-card shadow-sm transition-all hover:shadow-md"
-                >
-                  <div className="relative aspect-video overflow-hidden">
-                    <Image
-                      src={project.image || "/placeholder.svg"}
-                      alt={project.title}
-                      fill
-                      className="object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-                    {project.featured && (
-                      <div className="absolute right-2 top-2 rounded-full bg-primary px-2 py-1 text-xs font-medium text-primary-foreground">
-                        Featured
+            {isLoading ? (
+              <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-3">
+                {[...Array(6)].map((_, index) => (
+                  <div key={index} className="flex flex-col overflow-hidden rounded-lg border bg-card shadow-sm animate-pulse">
+                    <div className="relative aspect-video bg-muted" />
+                    <div className="flex flex-1 flex-col p-6 space-y-4">
+                      <div className="h-6 bg-muted rounded w-3/4" />
+                      <div className="h-4 bg-muted rounded w-full" />
+                      <div className="h-4 bg-muted rounded w-5/6" />
+                      <div className="flex gap-2">
+                        {[...Array(3)].map((_, i) => (
+                          <div key={i} className="h-6 w-16 bg-muted rounded-full" />
+                        ))}
                       </div>
-                    )}
-                  </div>
-                  <div className="flex flex-1 flex-col p-6">
-                    <h2 className="mb-2 text-xl font-bold">{project.title}</h2>
-                    <p className="mb-4 flex-1 text-muted-foreground">{project.description}</p>
-                    <div className="mb-4 flex flex-wrap gap-2">
-                      {project.tags.map((tag) => (
-                        <Badge key={tag} variant="secondary">
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                    <div className="flex gap-3">
-                      <Button variant="outline" size="sm" className="gap-2" asChild>
-                        <a href={project.link} target="_blank" rel="noopener noreferrer">
-                          <ExternalLink className="h-4 w-4" /> Live Demo
-                        </a>
-                      </Button>
-                      <Button variant="outline" size="sm" className="gap-2" asChild>
-                        <a href={project.github} target="_blank" rel="noopener noreferrer">
-                          <Github className="h-4 w-4" /> View Code
-                        </a>
-                      </Button>
+                      <div className="flex gap-3 pt-2">
+                        <div className="h-8 w-24 bg-muted rounded" />
+                        <div className="h-8 w-24 bg-muted rounded" />
+                        <div className="h-8 w-24 bg-muted rounded" />
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-3">
+                {projects.map((project: Project) => (
+                  <div
+                    key={project._id}
+                    className="group flex flex-col overflow-hidden rounded-lg border bg-card shadow-sm transition-all hover:shadow-md"
+                  >
+                    <div className="relative aspect-video overflow-hidden">
+                      <Image
+                        src={project.imageUrl || "/placeholder.svg"}
+                        alt={project.title}
+                        fill
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                      {project.featured && (
+                        <div className="absolute right-2 top-2 rounded-full bg-primary px-2 py-1 text-xs font-medium text-primary-foreground">
+                          Featured
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex flex-1 flex-col p-6">
+                      <h2 className="mb-2 text-xl font-bold">{project.title}</h2>
+                      <p className="mb-4 flex-1 text-muted-foreground">{project.description}</p>
+                      <div className="mb-4 flex flex-wrap gap-2">
+                        {project.tags.map((tag: string, index: number) => (
+                          <Badge key={index} variant="secondary">
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+                      <div className="flex gap-3">
+                        <Button variant="default" size="sm" className="gap-2" asChild>
+                          <Link href={`/work/${project._id}`}>
+                            <Eye className="h-4 w-4" /> View Details
+                          </Link>
+                        </Button>
+                        {project.liveUrl && (
+                          <Button variant="outline" size="sm" className="gap-2" asChild>
+                            <a href={project.liveUrl} target="_blank" rel="noopener noreferrer">
+                              <ExternalLink className="h-4 w-4" /> Live Demo
+                            </a>
+                          </Button>
+                        )}
+                        {project.githubUrl && (
+                          <Button variant="outline" size="sm" className="gap-2" asChild>
+                            <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
+                              <Github className="h-4 w-4" /> Code
+                            </a>
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </section>
       </main>
@@ -139,7 +147,7 @@ export default function WorkPage() {
       <footer className="border-t py-8">
         <div className="container mx-auto px-4 text-center">
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Alex Morgan. All rights reserved.
+            © {new Date().getFullYear()} Portfolio. All rights reserved.
           </p>
         </div>
       </footer>

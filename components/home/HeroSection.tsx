@@ -2,18 +2,32 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useGetEducationQuery, useGetExperiencesQuery, useGetProfileQuery, useGetProjectsQuery, useGetSkillsQuery } from "@/services/api";
+import {
+  useGetEducationQuery,
+  useGetExperiencesQuery,
+  useGetProfileQuery,
+  useGetProjectsQuery,
+  useGetSkillsQuery,
+} from "@/services/api";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   ArrowRight,
   Github,
   Mail,
   Download,
+  MapPin,
+  Star,
+  Trophy,
+  Code,
+  Briefcase,
+  Zap,
+  Users,
+  Globe,
 } from "lucide-react";
 import { Linkedin, Twitter, Instagram } from "lucide-react";
 import { useState, useEffect } from "react";
-
 
 interface SkillGroup {
   _id: string;
@@ -21,7 +35,6 @@ interface SkillGroup {
   items: string[];
   order: number;
 }
-
 
 interface Education {
   _id: string;
@@ -41,7 +54,6 @@ interface Education {
   certificateUrl?: string;
   type: "degree" | "certification" | "course";
 }
-
 
 interface Profile {
   name: string;
@@ -73,7 +85,6 @@ interface Experience {
   order: number;
 }
 
-
 interface Project {
   _id?: string;
   title: string;
@@ -86,14 +97,18 @@ interface Project {
 }
 
 // Custom hook for typewriter effect
-const useTypewriter = (text: string, speed: number = 50, delay: number = 1000) => {
-  const [displayText, setDisplayText] = useState('');
+const useTypewriter = (
+  text: string,
+  speed: number = 50,
+  delay: number = 1000
+) => {
+  const [displayText, setDisplayText] = useState("");
   const [isComplete, setIsComplete] = useState(false);
 
   useEffect(() => {
     if (!text) return;
 
-    setDisplayText('');
+    setDisplayText("");
     setIsComplete(false);
 
     const timeout = setTimeout(() => {
@@ -117,6 +132,23 @@ const useTypewriter = (text: string, speed: number = 50, delay: number = 1000) =
   return { displayText, isComplete };
 };
 
+// Custom hook for rotating text
+const useRotatingText = (texts: string[], interval: number = 3000) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    if (texts.length === 0) return;
+
+    const timer = setInterval(() => {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % texts.length);
+    }, interval);
+
+    return () => clearInterval(timer);
+  }, [texts, interval]);
+
+  return texts[currentIndex] || "";
+};
+
 export function HeroSection() {
   const { data: profileData, isLoading: isLoadingProfile } = useGetProfileQuery(
     undefined,
@@ -130,17 +162,17 @@ export function HeroSection() {
     {
       refetchOnMountOrArgChange: true,
     }
-      );
-      const { data: projects = [], isLoading: isLoadingProjects } =
-        useGetProjectsQuery(undefined);
-      const { data: educationData = [], isLoading: isLoadingEducation } =
-        useGetEducationQuery(undefined);
-      const { data: experiences = [], isLoading: isLoadingExperiences } =
-        useGetExperiencesQuery(undefined);
-      const featuredProjects = (projects as Project[]).filter(
-        (project: Project) => project.featured
-      );
-      const calculateYearsOfExperience = (experiences: Experience[]): string => {
+  );
+  const { data: projects = [], isLoading: isLoadingProjects } =
+    useGetProjectsQuery(undefined);
+  const { data: educationData = [], isLoading: isLoadingEducation } =
+    useGetEducationQuery(undefined);
+  const { data: experiences = [], isLoading: isLoadingExperiences } =
+    useGetExperiencesQuery(undefined);
+  const featuredProjects = (projects as Project[]).filter(
+    (project: Project) => project.featured
+  );
+  const calculateYearsOfExperience = (experiences: Experience[]): string => {
     if (!experiences || experiences.length === 0) return "0";
 
     let totalMonths = 0;
@@ -176,7 +208,7 @@ export function HeroSection() {
       : "<1";
   };
 
-    const totalSkills = skillsData
+  const totalSkills = skillsData
     ? skillsData.reduce(
         (sum: number, group: SkillGroup) => sum + group.items.length,
         0
@@ -193,15 +225,48 @@ export function HeroSection() {
 
   // Typewriter effect for name
   const { displayText: typedName, isComplete } = useTypewriter(
-    profileData?.name || '', 
+    profileData?.name || "",
     100, // typing speed in ms
-    500  // delay before starting in ms
+    500 // delay before starting in ms
   );
 
+  // Rotating specializations
+  const specializations = [
+    "Full Stack Developer",
+    "React Specialist",
+    "Node.js Expert",
+    "UI/UX Enthusiast",
+    "Problem Solver",
+  ];
+
+  const rotatingSpecialization = useRotatingText(specializations, 2500);
+
+  // Get top skills for preview
+  const topSkills =
+    skillsData
+      ?.slice(0, 3)
+      ?.flatMap((group: SkillGroup) => group.items.slice(0, 2))
+      .slice(0, 5) || [];
+
   return (
-    <section className="relative bg-background text-foreground py-24 md:py-16 overflow-hidden">
-      <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-gradient-to-b from-gray-500/10 dark:from-white/10 to-transparent rounded-full blur-3xl"></div>
-      <div className="absolute bottom-0 left-0 w-1/4 h-1/4 bg-gradient-to-t from-black/10 dark:from-white-400/10 to-transparent rounded-full blur-3xl"></div>
+    <section className="relative bg-background text-foreground py-24 md:py-16 overflow-hidden min-h-screen flex items-center">
+      {/* Enhanced Background Elements */}
+      <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-gradient-to-b from-primary/10 dark:from-white/10 to-transparent rounded-full blur-3xl"></div>
+      <div className="absolute bottom-0 left-0 w-1/4 h-1/4 bg-gradient-to-t from-primary/10 dark:from-white/10 to-transparent rounded-full blur-3xl"></div>
+
+      {/* Grid Pattern */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+
+      {/* Floating Elements */}
+      <div className="absolute top-20 left-20 w-2 h-2 bg-primary/30 rounded-full animate-pulse"></div>
+      <div
+        className="absolute top-40 right-32 w-1 h-1 bg-primary/40 rounded-full animate-pulse"
+        style={{ animationDelay: "1s" }}
+      ></div>
+      <div
+        className="absolute bottom-32 left-1/4 w-1.5 h-1.5 bg-primary/20 rounded-full animate-pulse"
+        style={{ animationDelay: "2s" }}
+      ></div>
 
       <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
         {isLoadingProfile ? (
@@ -245,276 +310,435 @@ export function HeroSection() {
                   </span>
                 </h1>
 
-                <div className="h-0.5 w-full bg-black my-6 mx-auto rounded-full dark:bg-white"></div>
-
-                <h2 className="text-2xl md:text-3xl font-medium text-black dark:text-white mb-4">
+                <h2 className="text-2xl md:text-3xl font-medium text-black dark:text-white mt-4 mb-2">
                   {profileData?.title}
                 </h2>
 
-                <p className="text-lg text-gray-600 dark:text-white leading-relaxed max-w-3xl mx-auto">
+                {/* Rotating Specialization */}
+                {/* <div className="mb-4">
+                  <span className="text-lg text-gray-500 dark:text-gray-400">
+                    Specializing as{" "}
+                  </span>
+                  <span className="text-lg font-semibold text-primary dark:text-white transition-all duration-500 ease-in-out">
+                    {rotatingSpecialization}
+                  </span>
+                </div> */}
+
+                {/* Location */}
+                {/* {profileData?.location && (
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <MapPin className="h-5 w-5 text-gray-600 dark:text-white leading-relaxed max-w-3xl" />
+                    <span className="text-lg text-gray-600 dark:text-white leading-relaxed max-w-3xl">
+                      {profileData.location}
+                    </span>
+                  </div>
+                )} */}
+
+                <p className="text-lg text-gray-600 dark:text-white leading-relaxed max-w-3xl mx-auto mb-6">
                   {profileData?.about} Specializing in creating modern,
                   high-performance web applications with exceptional user
                   experiences.
                 </p>
+
+                {/* Top Skills Preview */}
+                {topSkills.length > 0 && (
+                  <div className="mb-8">
+                    <div className="flex flex-wrap justify-center gap-2 max-w-2xl mx-auto">
+                      {topSkills.map((skill: any, index: any) => (
+                        <span key={index} className="">
+                          <Badge key={index} variant="secondary" className="border border-gray-500">
+                            {skill}
+                          </Badge>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+{/*             
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 max-w-2xl mx-auto">
+                  <div className="flex items-center justify-center gap-2 p-3 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200/50 dark:border-blue-700/50">
+                    <Code className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                    <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                      Clean Code
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-center gap-2 p-3 rounded-lg bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200/50 dark:border-green-700/50">
+                    <Zap className="h-5 w-5 text-green-600 dark:text-green-400" />
+                    <span className="text-sm font-medium text-green-800 dark:text-green-200">
+                      Fast Delivery
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-center gap-2 p-3 rounded-lg bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20 border border-purple-200/50 dark:border-purple-700/50">
+                    <Users className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                    <span className="text-sm font-medium text-purple-800 dark:text-purple-200">
+                      Team Player
+                    </span>
+                  </div>
+                </div> */}
               </div>
 
-              <div className="flex flex-wrap justify-center gap-4">
-                <Button
-                  size="lg"
-                  className="bg-black hover:text-black hover:border hover:bg-white text-white transition-all duration-300 shadow-lg hover:shadow-gray-900/20 dark:bg-transparent dark:border-white dark:border dark:hover:bg-gray-800 dark:hover:text-white"
-                  asChild
-                >
-                  <Link href="/work">
-                    View My Work <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="bg-black hover:text-black hover:border hover:bg-white text-white transition-all duration-300 shadow-lg hover:shadow-gray-900/20 dark:bg-transparent dark:border-white dark:border dark:hover:bg-gray-800 dark:hover:text-white"
-                  asChild
-                >
-                  <Link href="/contact">
-                    Contact Me <Mail className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-
-                {/* Social Links - Updated styles */}
-                {profileData?.socialLinks.github && (
-                  <Link
-                    href={profileData.socialLinks.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
+              <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-4">
+                {/* Primary Action Buttons */}
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Button
+                    size="lg"
+                    className="bg-black hover:text-black hover:border hover:bg-white text-white transition-all duration-300 shadow-lg hover:shadow-gray-900/20 dark:bg-transparent dark:border-white dark:border dark:hover:bg-gray-800 dark:hover:text-white group"
+                    asChild
                   >
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-black dark:text-white hover:text-white hover:bg-black dark:hover:text-gray-900 dark:hover:bg-white transition"
-                    >
-                      <Github className="h-5 w-5" />
-                    </Button>
-                  </Link>
-                )}
+                    <Link href="/work" className="flex items-center">
+                      View My Work
+                      <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                  </Button>
 
-                {profileData?.socialLinks.linkedin && (
-                  <Link
-                    href={profileData.socialLinks.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="bg-black hover:text-black hover:border hover:bg-white text-white transition-all duration-300 shadow-lg hover:shadow-gray-900/20 dark:bg-transparent dark:border-white dark:border dark:hover:bg-gray-800 dark:hover:text-white group"
+                    asChild
                   >
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-black dark:text-white hover:text-white hover:bg-black dark:hover:text-gray-900 dark:hover:bg-white transition"
-                    >
-                      <Linkedin className="h-5 w-5 " />
-                    </Button>
-                  </Link>
-                )}
+                    <Link href="/contact" className="flex items-center">
+                      Contact Me
+                      <Mail className="ml-2 h-4 w-4 group-hover:scale-110 transition-transform" />
+                    </Link>
+                  </Button>
+                </div>
 
-                {profileData?.socialLinks.twitter && (
-                  <Link
-                    href={profileData.socialLinks.twitter}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-black dark:text-white hover:text-white hover:bg-black dark:hover:text-gray-900 dark:hover:bg-white transition"
+                {/* Social Links */}
+                <div className="flex justify-center gap-2">
+                  {profileData?.socialLinks.github && (
+                    <Link
+                      href={profileData.socialLinks.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
                     >
-                      <Twitter className="h-5 w-5 " />
-                    </Button>
-                  </Link>
-                )}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-black dark:text-white hover:text-white hover:bg-black dark:hover:text-gray-900 dark:hover:bg-white transition-all duration-300 hover:scale-110"
+                      >
+                        <Github className="h-5 w-5" />
+                      </Button>
+                    </Link>
+                  )}
 
-                {profileData?.socialLinks.instagram && (
-                  <Link
-                    href={profileData.socialLinks.instagram}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-black dark:text-white hover:text-white hover:bg-black dark:hover:text-gray-900 dark:hover:bg-white transition"
+                  {profileData?.socialLinks.linkedin && (
+                    <Link
+                      href={profileData.socialLinks.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
                     >
-                      <Instagram className="h-5 w-5 " />
-                    </Button>
-                  </Link>
-                )}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-black dark:text-white hover:text-white hover:bg-black dark:hover:text-gray-900 dark:hover:bg-white transition-all duration-300 hover:scale-110"
+                      >
+                        <Linkedin className="h-5 w-5 " />
+                      </Button>
+                    </Link>
+                  )}
 
+                  {profileData?.socialLinks.twitter && (
+                    <Link
+                      href={profileData.socialLinks.twitter}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-black dark:text-white hover:text-white hover:bg-black dark:hover:text-gray-900 dark:hover:bg-white transition-all duration-300 hover:scale-110"
+                      >
+                        <Twitter className="h-5 w-5 " />
+                      </Button>
+                    </Link>
+                  )}
+
+                  {profileData?.socialLinks.instagram && (
+                    <Link
+                      href={profileData.socialLinks.instagram}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-black dark:text-white hover:text-white hover:bg-black dark:hover:text-gray-900 dark:hover:bg-white transition-all duration-300 hover:scale-110"
+                      >
+                        <Instagram className="h-5 w-5 " />
+                      </Button>
+                    </Link>
+                  )}
+                </div>
+
+                {/* Resume Download */}
                 {profileData?.resumeUrl && (
                   <a href={profileData.resumeUrl} download>
                     <Button
                       size="lg"
-                      className="bg-black hover:text-black hover:border hover:bg-white text-white transition-all duration-300 shadow-lg hover:shadow-gray-900/20 dark:bg-transparent dark:border-white dark:border dark:hover:bg-gray-800 dark:hover:text-white"
-                  
+                      className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white transition-all duration-300 shadow-lg hover:shadow-primary/20 group"
                     >
-                      Download Resume <Download className="ml-2 h-4 w-4" />
+                      Download Resume
+                      <Download className="ml-2 h-4 w-4 group-hover:translate-y-1 transition-transform" />
                     </Button>
                   </a>
                 )}
               </div>
             </div>
-          
           </div>
-
         )}
-                  <div className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
-            {isLoadingExperiences ||
-            isLoadingProjects ||
-            isLoadingSkills ||
-            isLoadingEducation
-              ? [...Array(4)].map((_, index) => (
-                  <div key={index} className="relative group">
-                    <div className="relative p-6 border border-black/25 rounded-md bg-card/50 backdrop-blur-sm">
-                      <Skeleton className="h-8 w-16 mb-1" />
-                      <Skeleton className="h-4 w-32" />
+
+        {/* Featured Projects Carousel */}
+        {/* {!isLoadingProjects && featuredProjects.length > 0 && (
+          <div className="mt-20 mb-16">
+            <div className="text-center mb-8">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                Featured Projects
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400">
+                Some of my recent work
+              </p>
+            </div>
+
+            <div className="overflow-hidden">
+              <div className="flex gap-6 animate-scroll">
+                {featuredProjects
+                  .slice(0, 3)
+                  .map((project: Project, index: number) => (
+                    <div
+                      key={project._id || index}
+                      className="flex-shrink-0 w-80 bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg p-6 hover:border-primary/50 transition-all duration-300 hover:shadow-lg group"
+                    >
+                      <div className="aspect-video bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg mb-4 flex items-center justify-center overflow-hidden">
+                        {project.imageUrl ? (
+                          <img
+                            src={project.imageUrl}
+                            alt={project.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        ) : (
+                          <Globe className="h-12 w-12 text-primary/50" />
+                        )}
+                      </div>
+
+                      <h4 className="font-semibold text-lg mb-2 group-hover:text-primary transition-colors">
+                        {project.title}
+                      </h4>
+
+                      <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                        {project.description}
+                      </p>
+
+                      <div className="flex flex-wrap gap-1 mb-3">
+                        {project.tags.slice(0, 3).map((tag, tagIndex) => (
+                          <Badge
+                            key={tagIndex}
+                            variant="secondary"
+                            className="text-xs"
+                          >
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+
+                      <div className="flex gap-2">
+                        {project.liveUrl && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="flex-1"
+                            asChild
+                          >
+                            <Link href={project.liveUrl} target="_blank">
+                              View Live
+                            </Link>
+                          </Button>
+                        )}
+                        {project.githubUrl && (
+                          <Button size="sm" variant="ghost" asChild>
+                            <Link href={project.githubUrl} target="_blank">
+                              <Github className="h-4 w-4" />
+                            </Link>
+                          </Button>
+                        )}
+                      </div>
                     </div>
+                  ))}
+              </div>
+            </div>
+          </div>
+        )} */}
+
+        {/* Stats Section */}
+        <div className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+          {isLoadingExperiences ||
+          isLoadingProjects ||
+          isLoadingSkills ||
+          isLoadingEducation
+            ? [...Array(4)].map((_, index) => (
+                <div key={index} className="relative group">
+                  <div className="relative p-6 border border-black/25 rounded-md bg-card/50 backdrop-blur-sm">
+                    <Skeleton className="h-8 w-16 mb-1" />
+                    <Skeleton className="h-4 w-32" />
                   </div>
-                ))
-              : [
-                  {
-                    value: calculateYearsOfExperience(experiences) || "0",
-                    label: "Years Experience",
-                    subtext: "Professional Development",
-                    icon: (
-                      <svg
-                        className="w-8 h-8 mb-4 text-primary/80"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                    ),
-                  },
-                  {
-                    value: projects.length.toString() || "0",
-                    label: "Projects Completed",
-                    subtext: "Delivered Successfully",
-                    icon: (
-                      <svg
-                        className="w-8 h-8 mb-4 text-primary/80"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                        />
-                      </svg>
-                    ),
-                  },
-                  {
-                    value: totalSkills.toString() || "0",
-                    label: "Total Skills",
-                    subtext: "And Growing Daily",
-                    icon: (
-                      <svg
-                        className="w-8 h-8 mb-4 text-primary/80"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M13 10V3L4 14h7v7l9-11h-7z"
-                        />
-                      </svg>
-                    ),
-                  },
-                  {
-                    value: totalCertifications.toString() || "0",
-                    label: "Total Certifications",
-                    subtext: "Professional Growth",
-                    icon: (
-                      <svg
-                        className="w-8 h-8 mb-4 text-primary/80"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
-                        />
-                      </svg>
-                    ),
-                  },
-                ].map((stat, index) => (
-                  <div key={index} className="relative group">
-                    <div className="relative p-6 rounded-md bg-card hover:bg-card/80 border border-gray/50 hover:border-primary/50 transition-all duration-300 overflow-hidden shadow-lg hover:shadow-xl">
-                      {/* Background Patterns */}
-                      <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:20px_20px]" />
+                </div>
+              ))
+            : [
+                {
+                  value: calculateYearsOfExperience(experiences) || "0",
+                  label: "Years Experience",
+                  subtext: "Professional Development",
+                  icon: (
+                    <svg
+                      className="w-8 h-8 mb-4 text-primary/80"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  ),
+                },
+                {
+                  value: projects.length.toString() || "0",
+                  label: "Projects Completed",
+                  subtext: "Delivered Successfully",
+                  icon: (
+                    <svg
+                      className="w-8 h-8 mb-4 text-primary/80"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                      />
+                    </svg>
+                  ),
+                },
+                {
+                  value: totalSkills.toString() || "0",
+                  label: "Total Skills",
+                  subtext: "And Growing Daily",
+                  icon: (
+                    <svg
+                      className="w-8 h-8 mb-4 text-primary/80"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M13 10V3L4 14h7v7l9-11h-7z"
+                      />
+                    </svg>
+                  ),
+                },
+                {
+                  value: totalCertifications.toString() || "0",
+                  label: "Total Certifications",
+                  subtext: "Professional Growth",
+                  icon: (
+                    <svg
+                      className="w-8 h-8 mb-4 text-primary/80"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
+                      />
+                    </svg>
+                  ),
+                },
+              ].map((stat, index) => (
+                <div key={index} className="relative group">
+                  <div className="relative p-6 rounded-md bg-card hover:bg-card/80 border border-gray/50 hover:border-primary/50 transition-all duration-300 overflow-hidden shadow-lg hover:shadow-xl">
+                    {/* Background Patterns */}
+                    <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:20px_20px]" />
 
-                      {/* Gradient Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    {/* Gradient Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                      {/* Main Content */}
-                      <div className="relative z-10">
-                        <div className="flex items-center justify-between mb-4">
-                          {stat.icon}
-                          <span className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                            <svg
-                              className="w-4 h-4 text-primary dark:text-white"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M5 10l7-7m0 0l7 7m-7-7v18"
-                              />
-                            </svg>
-                          </span>
+                    {/* Main Content */}
+                    <div className="relative z-10">
+                      <div className="flex items-center justify-between mb-4">
+                        {stat.icon}
+                        <span className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          <svg
+                            className="w-4 h-4 text-primary dark:text-white"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M5 10l7-7m0 0l7 7m-7-7v18"
+                            />
+                          </svg>
+                        </span>
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent animate-gradient">
+                          {stat.value}
                         </div>
-
-                        <div className="space-y-2">
-                          <div className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent animate-gradient">
-                            {stat.value}
+                        <div className="space-y-1">
+                          <div className="text-sm font-medium text-foreground">
+                            {stat.label}
                           </div>
-                          <div className="space-y-1">
-                            <div className="text-sm font-medium text-foreground">
-                              {stat.label}
-                            </div>
-                            <div className="text-xs text-muted-foreground/80">
-                              {stat.subtext}
-                            </div>
+                          <div className="text-xs text-muted-foreground/80">
+                            {stat.subtext}
                           </div>
                         </div>
                       </div>
-
-                      {/* Corner Accents */}
-                      <div className="absolute -right-12 -top-12 w-24 h-24 bg-black/10 rounded-full blur-2xl transition-all duration-500 group-hover:scale-150" />
-                      <div className="absolute -right-2 -top-2 w-8 h-8 bg-black/20 rounded-full blur-xl transition-all duration-500 group-hover:scale-150" />
-
-                      {/* Bottom Accent Line */}
-                      <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     </div>
+
+                    {/* Corner Accents */}
+                    <div className="absolute -right-12 -top-12 w-24 h-24 bg-black/10 rounded-full blur-2xl transition-all duration-500 group-hover:scale-150" />
+                    <div className="absolute -right-2 -top-2 w-8 h-8 bg-black/20 rounded-full blur-xl transition-all duration-500 group-hover:scale-150" />
+
+                    {/* Bottom Accent Line */}
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   </div>
-                ))}
+                </div>
+              ))}
+        </div>
+
+        {/* Scroll Indicator */}
+        <div className="mt-16 flex flex-col items-center animate-bounce">
+          <span className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+            Scroll to explore
+          </span>
+          <div className="w-6 h-10 border-2 border-gray-300 dark:border-gray-600 rounded-full flex justify-center">
+            <div className="w-1 h-3 bg-gray-500 dark:bg-gray-400 rounded-full mt-2 animate-pulse"></div>
           </div>
+        </div>
+
+        {/* Background Decoration */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-b from-primary/5 to-transparent rounded-full blur-3xl"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-t from-primary/5 to-transparent rounded-full blur-3xl"></div>
+        </div>
       </div>
-
-
-
     </section>
   );
 }
