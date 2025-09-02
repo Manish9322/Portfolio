@@ -314,26 +314,6 @@ export function HeroSection() {
                   {profileData?.title}
                 </h2>
 
-                {/* Rotating Specialization */}
-                {/* <div className="mb-4">
-                  <span className="text-lg text-gray-500 dark:text-gray-400">
-                    Specializing as{" "}
-                  </span>
-                  <span className="text-lg font-semibold text-primary dark:text-white transition-all duration-500 ease-in-out">
-                    {rotatingSpecialization}
-                  </span>
-                </div> */}
-
-                {/* Location */}
-                {/* {profileData?.location && (
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <MapPin className="h-5 w-5 text-gray-600 dark:text-white leading-relaxed max-w-3xl" />
-                    <span className="text-lg text-gray-600 dark:text-white leading-relaxed max-w-3xl">
-                      {profileData.location}
-                    </span>
-                  </div>
-                )} */}
-
                 <p className="text-lg text-gray-600 dark:text-white leading-relaxed max-w-3xl mx-auto mb-6">
                   {profileData?.about} Specializing in creating modern,
                   high-performance web applications with exceptional user
@@ -355,29 +335,6 @@ export function HeroSection() {
                   </div>
                 )}
 
-{/*             
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 max-w-2xl mx-auto">
-                  <div className="flex items-center justify-center gap-2 p-3 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200/50 dark:border-blue-700/50">
-                    <Code className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                    <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                      Clean Code
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-center gap-2 p-3 rounded-lg bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200/50 dark:border-green-700/50">
-                    <Zap className="h-5 w-5 text-green-600 dark:text-green-400" />
-                    <span className="text-sm font-medium text-green-800 dark:text-green-200">
-                      Fast Delivery
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-center gap-2 p-3 rounded-lg bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20 border border-purple-200/50 dark:border-purple-700/50">
-                    <Users className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                    <span className="text-sm font-medium text-purple-800 dark:text-purple-200">
-                      Team Player
-                    </span>
-                  </div>
-                </div> */}
               </div>
 
               <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-4">
@@ -490,87 +447,6 @@ export function HeroSection() {
             </div>
           </div>
         )}
-
-        {/* Featured Projects Carousel */}
-        {/* {!isLoadingProjects && featuredProjects.length > 0 && (
-          <div className="mt-20 mb-16">
-            <div className="text-center mb-8">
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                Featured Projects
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Some of my recent work
-              </p>
-            </div>
-
-            <div className="overflow-hidden">
-              <div className="flex gap-6 animate-scroll">
-                {featuredProjects
-                  .slice(0, 3)
-                  .map((project: Project, index: number) => (
-                    <div
-                      key={project._id || index}
-                      className="flex-shrink-0 w-80 bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg p-6 hover:border-primary/50 transition-all duration-300 hover:shadow-lg group"
-                    >
-                      <div className="aspect-video bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg mb-4 flex items-center justify-center overflow-hidden">
-                        {project.imageUrl ? (
-                          <img
-                            src={project.imageUrl}
-                            alt={project.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          />
-                        ) : (
-                          <Globe className="h-12 w-12 text-primary/50" />
-                        )}
-                      </div>
-
-                      <h4 className="font-semibold text-lg mb-2 group-hover:text-primary transition-colors">
-                        {project.title}
-                      </h4>
-
-                      <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                        {project.description}
-                      </p>
-
-                      <div className="flex flex-wrap gap-1 mb-3">
-                        {project.tags.slice(0, 3).map((tag, tagIndex) => (
-                          <Badge
-                            key={tagIndex}
-                            variant="secondary"
-                            className="text-xs"
-                          >
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-
-                      <div className="flex gap-2">
-                        {project.liveUrl && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="flex-1"
-                            asChild
-                          >
-                            <Link href={project.liveUrl} target="_blank">
-                              View Live
-                            </Link>
-                          </Button>
-                        )}
-                        {project.githubUrl && (
-                          <Button size="sm" variant="ghost" asChild>
-                            <Link href={project.githubUrl} target="_blank">
-                              <Github className="h-4 w-4" />
-                            </Link>
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            </div>
-          </div>
-        )} */}
 
         {/* Stats Section */}
         <div className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
