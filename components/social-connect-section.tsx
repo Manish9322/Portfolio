@@ -28,6 +28,7 @@ export function SocialConnectSection() {
   } | null>(null)
 
   const { data: profileData, isLoading, isError } = useGetProfileQuery(undefined, {
+  
     refetchOnMountOrArgChange: true,
   })
 
@@ -146,7 +147,7 @@ export function SocialConnectSection() {
             {/* Main Content */}
             <div className="relative z-10 flex flex-col h-full">
               <div className="flex items-center gap-3 mb-4">
-                <div className={`p-2.5 rounded-full text-white ${platform.color.split(" ")[0]}`}>{platform.icon}</div>
+                <div className="p-2.5 rounded-full bg-black text-white dark:bg-white dark:text-black">{platform.icon}</div>
                 <h4 className="font-semibold">{platform.name}</h4>
               </div>
 
@@ -230,7 +231,7 @@ export function SocialConnectSection() {
           </DialogHeader>
 
           <div className="flex items-center gap-4 p-4 bg-muted/50 rounded-md">
-            <div className={`p-3 rounded-full text-white ${selectedPlatform?.color.split(" ")[0]}`}>
+            <div className="p-3 rounded-full bg-black text-white dark:bg-white dark:text-black">
               {selectedPlatform?.icon}
             </div>
             <div>
