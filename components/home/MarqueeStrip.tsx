@@ -314,23 +314,23 @@ export function MarqueeStrip() {
   if (isLoading) {
     const loadingMessages = [
       {
-        icon: <FaSearch className="inline w-4 h-4 mr-2" />,
+        icon: <FaSearch className="inline w-4 h-4 mr-2 ml-2" />,
         text: "Hunting down the latest updates...",
       },
       {
-        icon: <FaBolt className="inline w-4 h-4 mr-2" />,
+        icon: <FaBolt className="inline w-4 h-4 mr-2 ml-2" />,
         text: "Loading fresh content from the creative kitchen...",
       },
       {
-        icon: <FaBullseye className="inline w-4 h-4 mr-2" />,
+        icon: <FaBullseye className="inline w-4 h-4 mr-2 ml-2" />,
         text: "Gathering the newest additions to my universe...",
       },
       {
-        icon: <FaRocket className="inline w-4 h-4 mr-2" />,
+        icon: <FaRocket className="inline w-4 h-4 mr-2 ml-2" />,
         text: "Fetching the latest and greatest...",
       },
       {
-        icon: <IoSparkles className="inline w-4 h-4 mr-2" />,
+        icon: <IoSparkles className="inline w-4 h-4 mr-2 ml-2" />,
         text: "Brewing some fresh updates for you...",
       },
     ];
