@@ -70,7 +70,7 @@ export function SocialConnectSection() {
     color: string
     description: string
   }) => {
-    if (!platform.url) {
+    if (!platform.url || platform.url.trim() === '') {
       toast({
         title: "No URL Available",
         description: `No ${platform.name} URL is set in your profile.`,
@@ -83,11 +83,43 @@ export function SocialConnectSection() {
   }
 
   const handleConnect = () => {
-    toast({
-      title: "Connection Request Sent!",
-      description: `Your request to connect on ${selectedPlatform?.name} has been sent.`,
-    })
+    if (selectedPlatform?.url && selectedPlatform.url.trim() !== '') {
+      window.open(selectedPlatform.url, '_blank', 'noopener,noreferrer')
+      toast({
+        title: "Opening Platform!",
+        description: `Opening ${selectedPlatform.name} in a new tab.`,
+      })
+    } else {
+      toast({
+        title: "No URL Available",
+        description: `No ${selectedPlatform?.name} URL is available.`,
+        variant: "destructive",
+      })
+    }
     setIsDialogOpen(false)
+  }
+
+  const handleConnectAllPlatforms = () => {
+    const availablePlatforms = socialPlatforms.filter(platform => platform.url && platform.url.trim() !== '')
+    
+    if (availablePlatforms.length === 0) {
+      toast({
+        title: "No Social Links Available",
+        description: "Please set your social media URLs in your profile.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    // Open each platform in a new tab
+    availablePlatforms.forEach(platform => {
+      window.open(platform.url, '_blank', 'noopener,noreferrer')
+    })
+
+    toast({
+      title: "Opening All Platforms!",
+      description: `Opening ${availablePlatforms.length} social platform${availablePlatforms.length > 1 ? 's' : ''} in new tabs.`,
+    })
   }
 
   if (isLoading) {
@@ -157,7 +189,7 @@ export function SocialConnectSection() {
                 variant="outline"
                 className="w-full justify-center gap-2 mt-auto transition-all duration-200"
                 onClick={() => handleConnectClick(platform)}
-                disabled={!platform.url}
+                disabled={!platform.url || platform.url.trim() === ''}
               >
                 Connect <ExternalLink className="h-4 w-4" />
               </Button>
@@ -192,21 +224,7 @@ export function SocialConnectSection() {
             </p>
             <Button
               className="bg-black hover:text-black hover:border hover:bg-white/90 backdrop-blur-sm text-white transition-all duration-300 shadow-lg hover:shadow-gray-900/20 dark:bg-transparent dark:border-white dark:border dark:hover:bg-white/10 dark:hover:backdrop-blur-sm dark:hover:text-white"
-              onClick={() => {
-                const hasUrls = socialPlatforms.some((platform) => platform.url)
-                if (!hasUrls) {
-                  toast({
-                    title: "No Social Links Available",
-                    description: "Please set your social media URLs in your profile.",
-                    variant: "destructive",
-                  })
-                  return
-                }
-                toast({
-                  title: "Thank you!",
-                  description: "Connection requests have been sent to all platforms.",
-                })
-              }}
+              onClick={handleConnectAllPlatforms}
             >
               Connect on All Platforms
             </Button>
@@ -226,7 +244,7 @@ export function SocialConnectSection() {
           <DialogHeader>
             <DialogTitle>Connect on {selectedPlatform?.name}</DialogTitle>
             <DialogDescription>
-              You're about to connect with {profileData?.name || "the user"} on {selectedPlatform?.name}. This will send a connection request.
+              You're about to visit {profileData?.name || "the user"}'s {selectedPlatform?.name} profile. This will open in a new browser tab.
             </DialogDescription>
           </DialogHeader>
 
@@ -245,7 +263,7 @@ export function SocialConnectSection() {
               Cancel
             </Button>
             <Button className={selectedPlatform?.color} onClick={handleConnect}>
-              Connect on {selectedPlatform?.name}
+              Visit {selectedPlatform?.name}
             </Button>
           </DialogFooter>
         </DialogContent>

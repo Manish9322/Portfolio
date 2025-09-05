@@ -5,7 +5,7 @@ import Project from '@/models/Projects.model';
 export async function GET() {
   try {
     await _db();
-    const projects = await Project.find({}).sort({ createdAt: -1 });
+    const projects = await Project.find({}).sort({ order: 1, createdAt: -1 });
     return NextResponse.json(projects);
   } catch (error) {
     return NextResponse.json({ error: 'Error fetching projects' }, { status: 500 });

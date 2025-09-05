@@ -5,7 +5,7 @@ import Project from '@/models/Projects.model';
 export async function GET(request, { params }) {
   try {
     await _db();
-    const { id } = params;
+    const { id } = await params;
     
     const project = await Project.findById(id);
     

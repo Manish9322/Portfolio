@@ -1,15 +1,29 @@
-import { NextResponse } from "next/server"
-import { blogs } from "../route"
+import { NextResponse } from "next/server";
+import connectDB from "@/utils/db";
+import Blog from "@/models/Blog.model";
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const blog = blogs.find((b) => b._id === params.id)
-  
-  if (!blog) {
-    return new NextResponse("Blog not found", { status: 404 })
+  try {
+    await connectDB();
+    const { id } = await params;
+    const blog = await Blog.findById(id);
+    
+    if (!blog) {
+      return NextResponse.json(
+        { error: "Blog not found" },
+        { status: 404 }
+      );
+    }
+    
+    return NextResponse.json(blog);
+  } catch (error) {
+    console.error("Error in GET /api/blog/[id]:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch blog" },
+      { status: 500 }
+    );
   }
-  
-  return NextResponse.json(blog)
 }

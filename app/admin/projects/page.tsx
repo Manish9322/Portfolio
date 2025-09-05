@@ -3,8 +3,10 @@
 import { useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
-import { ArrowLeft, Plus, Edit, Trash, X, Globe, Github, Upload } from "lucide-react"
+import { ArrowLeft, Plus, Edit, Trash, X, Globe, Github, Upload, GripVertical } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useEffect } from "react"
+import { useUpdateProjectOrderMutation } from "@/services/api"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/components/ui/use-toast"
 
@@ -62,6 +64,46 @@ export default function ProjectsPage() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   
   const { data: projects = [], isLoading } = useGetProjectsQuery(undefined)
+  const [updateProjectOrder] = useUpdateProjectOrderMutation()
+  const [orderedProjects, setOrderedProjects] = useState<Project[]>([])
+  // Sync orderedProjects with projects from API
+  useEffect(() => {
+    if (projects.length) {
+      // Sort by 'order' field if present, fallback to original
+      const sorted = [...projects].sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+      setOrderedProjects(sorted)
+    }
+  }, [projects])
+  // Drag and drop handlers
+  const dragItem = useRef<number | null>(null)
+  const dragOverItem = useRef<number | null>(null)
+
+  const handleDragStart = (e: React.DragEvent, idx: number) => {
+    dragItem.current = idx
+  }
+
+  const handleDragEnter = (idx: number) => {
+    dragOverItem.current = idx
+  }
+
+  const handleDragEnd = async () => {
+    const fromIdx = dragItem.current
+    const toIdx = dragOverItem.current
+    if (fromIdx === null || toIdx === null || fromIdx === toIdx) return
+    const updated = [...orderedProjects]
+    const [moved] = updated.splice(fromIdx, 1)
+    updated.splice(toIdx, 0, moved)
+    setOrderedProjects(updated)
+    dragItem.current = null
+    dragOverItem.current = null
+    // Save order to backend
+    try {
+      await updateProjectOrder({ orderedIds: updated.map(p => p._id) }).unwrap()
+      toast({ title: "Order updated", description: "Project order has been updated." })
+    } catch {
+      toast({ variant: "destructive", title: "Error", description: "Failed to update order." })
+    }
+  }
   const [addProject] = useAddProjectMutation()
   const [updateProject] = useUpdateProjectMutation()
   const [deleteProject] = useDeleteProjectMutation()
@@ -264,8 +306,11 @@ export default function ProjectsPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-        {projects.map((project: Project) => (
-          <Card key={project._id} className="overflow-hidden">
+        {orderedProjects.map((project: Project, idx: number) => (
+          <Card
+            key={project._id}
+            className="overflow-hidden"
+          >
             <div className="aspect-video relative">
               <Image src={project.imageUrl || "/placeholder.svg"} alt={project.title} fill className="object-cover" />
               {project.featured && (
@@ -275,21 +320,37 @@ export default function ProjectsPage() {
               )}
             </div>
             <CardHeader>
-              <CardTitle className="line-clamp-1 mb-2">{project.title}</CardTitle>
-              <div className="flex flex-wrap gap-1">
-                {project.tags.slice(0, 3).map((tag: string, index: number) => (
-                  <span
-                    key={index}
-                    className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold"
-                  >
-                    {tag}
-                  </span>
-                ))}
-                {project.tags.length > 3 && (
-                  <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold">
-                    +{project.tags.length - 3} more
-                  </span>
-                )}
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <CardTitle className="line-clamp-1 mb-2">{project.title}</CardTitle>
+                  <div className="flex flex-wrap gap-1">
+                    {project.tags.slice(0, 3).map((tag: string, index: number) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                    {project.tags.length > 3 && (
+                      <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold">
+                        +{project.tags.length - 3} more
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="cursor-grab ml-2"
+                  onDragStart={(e) => handleDragStart(e, idx)}
+                  onDragEnter={() => handleDragEnter(idx)}
+                  onDragEnd={handleDragEnd}
+                  draggable
+                >
+                  <GripVertical className="h-4 w-4" />
+                  <span className="sr-only">Drag to reorder</span>
+                </Button>
               </div>
             </CardHeader>
             <CardContent>
@@ -522,6 +583,30 @@ export default function ProjectsPage() {
                             const updatedScreenshots = [...(formData.screenshots || [])]
                             updatedScreenshots[index] = { ...screenshot, caption: e.target.value }
                             setFormData({ ...formData, screenshots: updatedScreenshots })
+                          }}
+                        />
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const form = new FormData();
+                              form.append("file", file);
+                              const uploadResponse = await fetch("/api/upload", {
+                                method: "POST",
+                                body: form,
+                              });
+                              if (uploadResponse.ok) {
+                                const uploadData = await uploadResponse.json();
+                                const updatedScreenshots = [...(formData.screenshots || [])];
+                                updatedScreenshots[index] = { ...screenshot, url: uploadData.url };
+                                setFormData({ ...formData, screenshots: updatedScreenshots });
+                                toast({ title: "Success", description: "Screenshot uploaded successfully" });
+                              } else {
+                                toast({ variant: "destructive", title: "Error", description: "Failed to upload screenshot" });
+                              }
+                            }
                           }}
                         />
                       </div>

@@ -122,6 +122,16 @@ export const portfolioApi = createApi({
       invalidatesTags: ["Projects"],
     }),
 
+      // Update project order
+      updateProjectOrder: builder.mutation({
+        query: ({ orderedIds }) => ({
+          url: "/projects/order",
+          method: "PATCH",
+          body: { orderedIds },
+        }),
+        invalidatesTags: ["Projects"],
+      }),
+
     // ======================================== EDUCATION ======================================== //
 
     // Fetch education
@@ -222,6 +232,12 @@ export const portfolioApi = createApi({
     getBlogs: builder.query({
       query: () => "/blog",
       providesTags: ["Blog"],
+    }),
+
+    // Fetch single blog
+    getBlog: builder.query({
+      query: (id) => `/blog/${id}`,
+      providesTags: (result, error, id) => [{ type: "Blog", id }],
     }),
 
     // Add a blog
@@ -327,6 +343,7 @@ export const {
   useAddProjectMutation,
   useUpdateProjectMutation,
   useDeleteProjectMutation,
+  useUpdateProjectOrderMutation,
 
   useGetEducationQuery,
   useAddEducationMutation,
@@ -341,6 +358,7 @@ export const {
   useUpdateExperienceOrderMutation,
 
   useGetBlogsQuery,
+  useGetBlogQuery,
   useAddBlogMutation,
   useUpdateBlogMutation,
   useDeleteBlogMutation,
