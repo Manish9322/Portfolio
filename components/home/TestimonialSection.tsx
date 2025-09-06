@@ -1,7 +1,9 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
+import { useGetFeedbacksQuery } from "@/services/api";
 
-const testimonials1 = [
+// Fallback testimonials in case API fails or no data
+const fallbackTestimonials = [
   {
     feedback:
       "Outstanding work! The attention to detail and professional execution exceeded our expectations completely.",
@@ -26,9 +28,6 @@ const testimonials1 = [
     name: "Carlos Rivera",
     role: "Startup Founder",
   },
-];
-
-const testimonials2 = [
   {
     feedback:
       "Excellent communication and top-notch results. Every project milestone was met with precision.",
@@ -86,6 +85,78 @@ function TestimonialCard({
 }
 
 const TestimonialSection = () => {
+  // Fetch approved and visible feedbacks from API
+  const { data: feedbackData, isLoading, error } = useGetFeedbacksQuery({
+    visible: true,
+    approved: true,
+  });
+
+  // Use API data if available, otherwise fallback to hardcoded testimonials
+  const allTestimonials = feedbackData?.success ? feedbackData.data : fallbackTestimonials;
+  
+  // Split testimonials into two rows for the marquee effect
+  const midpoint = Math.ceil(allTestimonials.length / 2);
+  const testimonials1 = allTestimonials.slice(0, midpoint);
+  const testimonials2 = allTestimonials.slice(midpoint);
+
+  // If loading or no testimonials, show fallback
+  if (isLoading || allTestimonials.length === 0) {
+    const fallbackMidpoint = Math.ceil(fallbackTestimonials.length / 2);
+    const fallbackTestimonials1 = fallbackTestimonials.slice(0, fallbackMidpoint);
+    const fallbackTestimonials2 = fallbackTestimonials.slice(fallbackMidpoint);
+    
+    return (
+      <section className="py-20 bg-muted/50 dark:bg-muted/20 overflow-hidden">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+          <div className="mb-12 text-center">
+            <div className="inline-flex items-center px-3 py-1 rounded-full bg-black/5 border text-black dark:bg-black/10 border-black/10 text-sm font-medium mb-6 dark:text-white dark:border-white dark:border-white/30">
+              <span className="relative flex h-2 w-2 mr-2">
+                <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-black dark:bg-white opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-black dark:bg-white"></span>
+              </span>
+              Client Feedback
+            </div>
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground">
+              What People Say
+            </h2>
+            <p className="mt-4 text-lg text-muted-foreground">
+              Hear from clients and colleagues who have experienced my work
+              firsthand
+            </p>
+          </div>
+
+          <div className="space-y-6">
+            {/* First row - left to right */}
+            <div className="relative">
+              <div className="absolute top-0 -left-40 h-full w-36 sm:w-44 bg-gradient-to-r from-muted/100 dark:from-muted/100 to-transparent z-10"></div>
+              <div className="flex animate-marquee-left">
+                {[...fallbackTestimonials1, ...fallbackTestimonials1].map(
+                  (testimonial, index) => (
+                    <TestimonialCard key={`fallback-row1-${index}`} {...testimonial} />
+                  )
+                )}
+              </div>
+              <div className="absolute top-0 -right-40 h-full w-36 sm:w-44 bg-gradient-to-l from-muted/100 dark:from-muted/100 to-transparent z-10"></div>
+            </div>
+
+            {/* Second row - right to left */}
+            <div className="relative">
+              <div className="absolute top-0 -left-40 h-full w-36 sm:w-44 bg-gradient-to-r from-muted/100 dark:from-muted/100 to-transparent z-10"></div>
+              <div className="flex animate-marquee-right">
+                {[...fallbackTestimonials2, ...fallbackTestimonials2].map(
+                  (testimonial, index) => (
+                    <TestimonialCard key={`fallback-row2-${index}`} {...testimonial} />
+                  )
+                )}
+              </div>
+              <div className="absolute top-0 -right-40 h-full w-36 sm:w-44 bg-gradient-to-l from-muted/100 dark:from-muted/100 to-transparent z-10"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="py-20 bg-muted/50 dark:bg-muted/20 overflow-hidden">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">

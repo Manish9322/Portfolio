@@ -3,6 +3,7 @@ import { MongoClient, ServerApiVersion } from "mongodb";
 import nodemailer from "nodemailer";
 import _db from '@/utils/db';
 import Activity from '@/models/Activity.model';
+import Contact from '@/models/Contact.model.js';
 
 // Helper function to create activity log
 const logActivity = async (action, item, details, category = 'messages', icon = 'MessageSquare') => {
@@ -77,7 +78,7 @@ if (uri && uri.trim() !== '') {
 // Email transporter configuration (optional - only if credentials are provided)
 let transporter = null;
 if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-  transporter = nodemailer.createTransporter({
+  transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
       user: process.env.EMAIL_USER,
@@ -116,35 +117,24 @@ export async function POST(request) {
       'MessageSquare'
     );
 
-    // Try to save to MongoDB (optional)
-    if (client) {
-      try {
-        await client.connect();
-        const db = client.db("portfolio");
-        const collection = db.collection("contacts");
-
-        const submission = {
-          name,
-          email,
-          message,
-          timestamp: new Date(),
-        };
-        await collection.insertOne(submission);
-        mongoSaved = true;
-        console.log("Contact saved to MongoDB successfully");
-      } catch (error) {
-        console.warn("MongoDB save failed:", error.message);
-      } finally {
-        if (client) {
-          try {
-            await client.close();
-          } catch (closeError) {
-            console.warn("Error closing MongoDB connection:", closeError.message);
-          }
-        }
-      }
-    } else {
-      console.log("MongoDB not configured, skipping database save");
+    // Save to MongoDB using mongoose
+    try {
+      await _db();
+      
+      const contactSubmission = new Contact({
+        name,
+        email,
+        message,
+        subject: 'Contact Form Inquiry',
+        ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('remote-addr'),
+        userAgent: request.headers.get('user-agent')
+      });
+      
+      await contactSubmission.save();
+      mongoSaved = true;
+      console.log("Contact saved to MongoDB successfully");
+    } catch (error) {
+      console.warn("MongoDB save failed:", error.message);
     }
 
     // Try to send email notification (optional)
@@ -196,6 +186,168 @@ export async function POST(request) {
     return NextResponse.json({ 
       error: "Internal server error",
       success: false 
+    }, { status: 500 });
+  }
+}
+
+// GET - Fetch all contact messages
+export async function GET(request) {
+  try {
+    await _db();
+    
+    const url = new URL(request.url);
+    const page = parseInt(url.searchParams.get('page') || '1');
+    const limit = parseInt(url.searchParams.get('limit') || '10');
+    const filter = url.searchParams.get('filter') || 'all'; // all, unread, starred, archived
+    
+    const skip = (page - 1) * limit;
+    
+    // Build filter query
+    let query = {};
+    switch (filter) {
+      case 'unread':
+        query.read = false;
+        break;
+      case 'starred':
+        query.starred = true;
+        break;
+      case 'archived':
+        query.archived = true;
+        break;
+      case 'inbox':
+        query.archived = false;
+        break;
+    }
+    
+    // Get messages with pagination
+    const contacts = await Contact.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+    
+    // Get total count for pagination
+    const total = await Contact.countDocuments(query);
+    
+    return NextResponse.json({
+      contacts,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit)
+      }
+    });
+    
+  } catch (error) {
+    console.error("Error fetching contact messages:", error);
+    return NextResponse.json({ 
+      error: "Internal server error",
+      message: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    }, { status: 500 });
+  }
+}
+
+// PUT - Update message (mark as read, starred, archived, etc.)
+export async function PUT(request) {
+  try {
+    await _db();
+    
+    const { id, updates } = await request.json();
+    
+    if (!id) {
+      return NextResponse.json({ 
+        error: "Message ID is required" 
+      }, { status: 400 });
+    }
+    
+    const contact = await Contact.findByIdAndUpdate(
+      id, 
+      { ...updates }, 
+      { new: true }
+    );
+    
+    if (!contact) {
+      return NextResponse.json({ 
+        error: "Message not found" 
+      }, { status: 404 });
+    }
+    
+    // Log activity for important updates
+    if (updates.read !== undefined) {
+      await logActivity(
+        updates.read ? 'Marked message as read' : 'Marked message as unread',
+        `message from ${contact.name}`,
+        `Message from ${contact.name} (${contact.email})`,
+        'messages',
+        'MessageSquare'
+      );
+    }
+    
+    if (updates.archived !== undefined) {
+      await logActivity(
+        updates.archived ? 'Archived message' : 'Unarchived message',
+        `message from ${contact.name}`,
+        `Message from ${contact.name} (${contact.email})`,
+        'messages',
+        'Archive'
+      );
+    }
+    
+    return NextResponse.json({ 
+      success: true, 
+      contact 
+    });
+    
+  } catch (error) {
+    console.error("Error updating contact message:", error);
+    return NextResponse.json({ 
+      error: "Internal server error" 
+    }, { status: 500 });
+  }
+}
+
+// DELETE - Delete a message
+export async function DELETE(request) {
+  try {
+    await _db();
+    
+    const { id } = await request.json();
+    
+    if (!id) {
+      return NextResponse.json({ 
+        error: "Message ID is required" 
+      }, { status: 400 });
+    }
+    
+    const contact = await Contact.findById(id);
+    
+    if (!contact) {
+      return NextResponse.json({ 
+        error: "Message not found" 
+      }, { status: 404 });
+    }
+    
+    await Contact.findByIdAndDelete(id);
+    
+    // Log activity
+    await logActivity(
+      'Deleted message',
+      `from ${contact.name}`,
+      `Deleted message from ${contact.name} (${contact.email})`,
+      'messages',
+      'Trash2'
+    );
+    
+    return NextResponse.json({ 
+      success: true,
+      message: "Message deleted successfully"
+    });
+    
+  } catch (error) {
+    console.error("Error deleting contact message:", error);
+    return NextResponse.json({ 
+      error: "Internal server error" 
     }, { status: 500 });
   }
 }

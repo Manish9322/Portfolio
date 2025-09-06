@@ -6,7 +6,7 @@ import Image from "next/image"
 import { ArrowLeft, Plus, Edit, Trash, X, Globe, Github, Upload, GripVertical } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useEffect } from "react"
-import { useUpdateProjectOrderMutation } from "@/services/api"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/components/ui/use-toast"
 
@@ -28,7 +28,8 @@ import {
   useGetProjectsQuery,
   useAddProjectMutation,
   useUpdateProjectMutation,
-  useDeleteProjectMutation
+  useDeleteProjectMutation,
+  useUpdateProjectOrderMutation
 } from "@/services/api"
 
 interface Screenshot {
@@ -287,7 +288,50 @@ export default function ProjectsPage() {
   }
 
   if (isLoading) {
-    return <div className="p-6">Loading projects...</div>
+    return (
+      <div className="space-y-6 p-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-6">
+            <Button variant="outline" size="icon" onClick={handleGoBack}>
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <h1 className="text-2xl font-bold">Manage Projects</h1>
+          </div>
+          <Skeleton className="h-10 w-32" />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <Card key={index} className="overflow-hidden">
+              <div className="aspect-video relative">
+                <Skeleton className="w-full h-full" />
+              </div>
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div className="space-y-2">
+                    <Skeleton className="h-5 w-3/4" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-2/3" />
+                  </div>
+                  <Skeleton className="h-8 w-8 rounded" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-wrap gap-1">
+                  <Skeleton className="h-5 w-16 rounded-full" />
+                  <Skeleton className="h-5 w-20 rounded-full" />
+                  <Skeleton className="h-5 w-14 rounded-full" />
+                </div>
+              </CardContent>
+              <CardFooter className="flex justify-between">
+                <Skeleton className="h-8 w-16" />
+                <Skeleton className="h-8 w-16" />
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      </div>
+    )
   }
 
   return (

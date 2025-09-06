@@ -56,7 +56,7 @@ export default function ProjectDetails() {
       <div className="min-h-screen bg-background">
         {/* Hero Section with Project Image */}
         <section className="relative mb-8 lg:mb-12">
-          <div className="container mx-auto px-4 pt-8">
+          <div className="container mx-auto px-4">
             <div className="max-w-6xl mx-auto">
               {/* Project Main Image */}
               <div className="aspect-video relative rounded-xl overflow-hidden mb-6 lg:mb-8 shadow-2xl">

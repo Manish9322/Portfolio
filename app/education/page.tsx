@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Card, CardContent } from "@/components/ui/card"
 import { getPortfolioData } from "@/lib/portfolio-data"
-import { useGetEducationQuery } from "@/services/api"
+import { useGetEducationQuery, useGetProfileQuery } from "@/services/api"
 
 
 interface Education {
@@ -35,6 +35,9 @@ export default function EducationPage() {
   // In a real implementation, this would fetch from your database
   const { featuredProjects: projects } = getPortfolioData()
   const { data: educationData = [], isLoading: isLoadingEducation } = useGetEducationQuery(undefined)
+  const { data: profileData } = useGetProfileQuery(undefined, {
+    refetchOnMountOrArgChange: true,
+  })
 
   // In a real app, you would fetch all projects, not just featured ones
   const allProjects = [
@@ -97,7 +100,7 @@ export default function EducationPage() {
       <header className="border-b">
         <div className="container mx-auto flex h-16 items-center justify-between px-4 max-w-7xl">
           <Link href="/" className="text-xl font-bold">
-            Alex Morgan
+            {profileData?.name || "Manish Sonawane"}
           </Link>
           <nav className="flex items-center gap-6">
             <Link href="/" className="text-sm font-medium text-muted-foreground hover:text-foreground">
@@ -264,7 +267,7 @@ export default function EducationPage() {
       <footer className="border-t py-8">
         <div className="container mx-auto px-4 text-center">
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Alex Morgan. All rights reserved.
+            © {new Date().getFullYear()} {profileData?.name || "Manish Sonawane"}. All rights reserved.
           </p>
         </div>
       </footer>

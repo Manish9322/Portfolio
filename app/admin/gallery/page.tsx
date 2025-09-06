@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/components/ui/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ImageItem {
   id: string;
@@ -230,24 +231,64 @@ export default function GalleryPage() {
         </Button>
       </div>
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Preview</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Tag</TableHead>
-              <TableHead>Visibility</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {images.map((image) => (
-              <TableRow key={image.id}>
-                <TableCell>
-                  <div className="relative h-12 w-12">
-                    <Image
-                      src={image.imageUrl}
+      {isLoading ? (
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Preview</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Tag</TableHead>
+                <TableHead>Visibility</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {Array.from({ length: 5 }).map((_, index) => (
+                <TableRow key={index}>
+                  <TableCell>
+                    <Skeleton className="h-12 w-12 rounded" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-4 w-32" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-4 w-20" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-6 w-12" />
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="h-8 w-8" />
+                      <Skeleton className="h-8 w-8" />
+                      <Skeleton className="h-8 w-8" />
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      ) : (
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Preview</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Tag</TableHead>
+                <TableHead>Visibility</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {images.map((image) => (
+                <TableRow key={image.id}>
+                  <TableCell>
+                    <div className="relative h-12 w-12">
+                      <Image
+                        src={image.imageUrl}
                       alt={image.name}
                       fill
                       className="object-cover rounded-md"
@@ -301,7 +342,8 @@ export default function GalleryPage() {
             )}
           </TableBody>
         </Table>
-      </div>
+        </div>
+      )}
 
       {/* Add/Edit Modal */}
       <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>

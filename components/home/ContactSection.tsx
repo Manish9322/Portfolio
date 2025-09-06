@@ -8,7 +8,7 @@ const ContactBenefits = () => {
   return (
     <div className="mt-8 pt-6 border-t border-border">
       <h4 className="text-lg font-semibold mb-3">Why Connect With Me?</h4>
-      <ul className="space-y-2">
+      <ul className="space-y-2 text-sm">
         {[
           "Quick response within 24-48 hours",
           "Professional collaboration opportunities",
@@ -113,7 +113,7 @@ export const ContactSection = () => {
                   id="name"
                   type="text"
                   className="w-full px-3 py-2 border border-input rounded-md bg-background"
-                  placeholder="Your name"
+                  placeholder="Your name Here"
                   value={formData.name}
                   onChange={handleInputChange}
                   required
@@ -127,7 +127,7 @@ export const ContactSection = () => {
                   id="email"
                   type="email"
                   className="w-full px-3 py-2 border border-input rounded-md bg-background"
-                  placeholder="Your email"
+                  placeholder="Your Email Here"
                   value={formData.email}
                   onChange={handleInputChange}
                   required
@@ -140,7 +140,7 @@ export const ContactSection = () => {
                 <textarea
                   id="message"
                   className="w-full px-3 py-2 border border-input rounded-md bg-background min-h-[120px]"
-                  placeholder="Your message"
+                  placeholder="Your Message Here"
                   value={formData.message}
                   onChange={handleInputChange}
                   required

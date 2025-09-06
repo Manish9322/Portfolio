@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { BlogCard } from "@/components/ui/blog-card";
-import { useGetBlogsQuery } from "@/services/api";
+import { useGetBlogsQuery, useGetProfileQuery } from "@/services/api";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { BookOpen, ArrowRight } from "lucide-react";
@@ -33,6 +33,9 @@ export default function BlogsPage() {
       refetchOnMountOrArgChange: true,
     }
   );
+  const { data: profileData } = useGetProfileQuery(undefined, {
+    refetchOnMountOrArgChange: true,
+  });
 
   const filteredBlogs = blogs.filter(
     (blog: any) =>
@@ -117,7 +120,7 @@ export default function BlogsPage() {
       <header className="border-b">
         <div className="container mx-auto flex h-16 items-center justify-between px-4 max-w-7xl">
           <Link href="/" className="text-xl font-bold">
-            Alex Morgan
+            {profileData?.name || "Manish Sonawane"}
           </Link>
           <nav className="flex items-center gap-6">
             <Link
@@ -201,7 +204,7 @@ export default function BlogsPage() {
       <footer className="border-t py-8">
         <div className="container mx-auto px-4 text-center">
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Alex Morgan. All rights reserved.
+            © {new Date().getFullYear()} {profileData?.name || "Manish Sonawane"}. All rights reserved.
           </p>
         </div>
       </footer>

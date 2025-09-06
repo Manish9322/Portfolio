@@ -16,7 +16,8 @@ import {
   Activity,
   Sun,
   Moon,
-  ImageIcon
+  ImageIcon,
+  MessageCircle
 } from "lucide-react"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import { 
@@ -41,6 +42,7 @@ const sidebarNavItems = [
   { href: "/admin/projects", label: "Projects", icon: FolderKanban },
   { href: "/admin/blog", label: "Blog", icon: BookOpen },
   { href: "/admin/gallery", label: "Gallery", icon: ImageIcon },
+  { href: "/admin/feedback", label: "Feedback", icon: MessageCircle },
   { href: "/admin/messages", label: "Messages", icon: MessageSquare },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ]

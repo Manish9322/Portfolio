@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import {
   ArrowLeft,
@@ -17,6 +17,8 @@ import {
   Star,
   Trash2,
   User,
+  RefreshCw,
+  Loader2,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -43,6 +45,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton"
+import { toast } from "@/components/ui/use-toast"
+import {
+  useGetContactMessagesQuery,
+  useUpdateContactMessageMutation,
+  useDeleteContactMessageMutation,
+} from "@/services/api"
 
 // Mock data for messages
 const mockMessages = [
@@ -134,23 +143,48 @@ const mockMessages = [
 
 export default function MessagesPage() {
   const router = useRouter()
-  const [messages, setMessages] = useState(mockMessages)
   const [selectedMessage, setSelectedMessage] = useState(null)
   const [isReplyDialogOpen, setIsReplyDialogOpen] = useState(false)
   const [replyText, setReplyText] = useState("")
   const [activeTab, setActiveTab] = useState("inbox")
   const [searchQuery, setSearchQuery] = useState("")
+  const [page, setPage] = useState(1)
+
+  // API hooks
+  const { 
+    data: messagesData, 
+    isLoading, 
+    error, 
+    refetch 
+  } = useGetContactMessagesQuery({ 
+    page, 
+    limit: 10, 
+    filter: activeTab 
+  })
+  
+  const [updateMessage] = useUpdateContactMessageMutation()
+  const [deleteMessage] = useDeleteContactMessageMutation()
+
+  const messages = messagesData?.contacts || []
 
   const handleGoBack = () => {
     router.back()
   }
 
-  const filteredMessages = messages.filter((message) => {
-    // Filter based on active tab
-    if (activeTab === "inbox" && message.archived) return false
-    if (activeTab === "starred" && !message.starred) return false
-    if (activeTab === "archived" && !message.archived) return false
+  // Helper function to format relative date
+  const formatDate = (dateString) => {
+    const date = new Date(dateString)
+    const now = new Date()
+    const diffTime = Math.abs(now - date)
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    
+    if (diffDays === 1) return "1 day ago"
+    if (diffDays < 7) return `${diffDays} days ago`
+    if (diffDays < 30) return `${Math.ceil(diffDays / 7)} week${Math.ceil(diffDays / 7) > 1 ? 's' : ''} ago`
+    return `${Math.ceil(diffDays / 30)} month${Math.ceil(diffDays / 30) > 1 ? 's' : ''} ago`
+  }
 
+  const filteredMessages = messages.filter((message) => {
     // Filter based on search query
     if (searchQuery) {
       const query = searchQuery.toLowerCase()
@@ -161,38 +195,98 @@ export default function MessagesPage() {
         message.message.toLowerCase().includes(query)
       )
     }
-
     return true
   })
 
-  const handleMessageClick = (message) => {
+  const handleMessageClick = async (message) => {
     // Mark as read if it wasn't already
     if (!message.read) {
-      setMessages(messages.map((m) => (m.id === message.id ? { ...m, read: true } : m)))
+      try {
+        await updateMessage({
+          id: message._id,
+          updates: { read: true }
+        }).unwrap()
+      } catch (error) {
+        console.error('Failed to mark message as read:', error)
+      }
     }
     setSelectedMessage(message)
   }
 
-  const handleStarMessage = (e, messageId) => {
+  const handleStarMessage = async (e, messageId) => {
     e.stopPropagation()
-    setMessages(
-      messages.map((message) => (message.id === messageId ? { ...message, starred: !message.starred } : message)),
-    )
-  }
-
-  const handleArchiveMessage = (messageId) => {
-    setMessages(
-      messages.map((message) => (message.id === messageId ? { ...message, archived: !message.archived } : message)),
-    )
-    if (selectedMessage?.id === messageId) {
-      setSelectedMessage(null)
+    const message = messages.find(m => m._id === messageId)
+    if (message) {
+      try {
+        await updateMessage({
+          id: messageId,
+          updates: { starred: !message.starred }
+        }).unwrap()
+        toast({
+          title: message.starred ? "Message unstarred" : "Message starred",
+          description: `Message from ${message.name} has been ${message.starred ? 'unstarred' : 'starred'}.`,
+        })
+      } catch (error) {
+        console.error('Failed to update message:', error)
+        toast({
+          title: "Error",
+          description: "Failed to update message. Please try again.",
+          variant: "destructive",
+        })
+      }
     }
   }
 
-  const handleDeleteMessage = (messageId) => {
-    setMessages(messages.filter((message) => message.id !== messageId))
-    if (selectedMessage?.id === messageId) {
-      setSelectedMessage(null)
+  const handleArchiveMessage = async (messageId) => {
+    const message = messages.find(m => m._id === messageId)
+    if (message) {
+      try {
+        await updateMessage({
+          id: messageId,
+          updates: { archived: !message.archived }
+        }).unwrap()
+        
+        if (selectedMessage?._id === messageId) {
+          setSelectedMessage(null)
+        }
+        
+        toast({
+          title: message.archived ? "Message unarchived" : "Message archived",
+          description: `Message from ${message.name} has been ${message.archived ? 'moved to inbox' : 'archived'}.`,
+        })
+      } catch (error) {
+        console.error('Failed to archive message:', error)
+        toast({
+          title: "Error",
+          description: "Failed to archive message. Please try again.",
+          variant: "destructive",
+        })
+      }
+    }
+  }
+
+  const handleDeleteMessage = async (messageId) => {
+    const message = messages.find(m => m._id === messageId)
+    if (message) {
+      try {
+        await deleteMessage(messageId).unwrap()
+        
+        if (selectedMessage?._id === messageId) {
+          setSelectedMessage(null)
+        }
+        
+        toast({
+          title: "Message deleted",
+          description: `Message from ${message.name} has been permanently deleted.`,
+        })
+      } catch (error) {
+        console.error('Failed to delete message:', error)
+        toast({
+          title: "Error",
+          description: "Failed to delete message. Please try again.",
+          variant: "destructive",
+        })
+      }
     }
   }
 
@@ -200,10 +294,88 @@ export default function MessagesPage() {
     // In a real app, this would send the reply
     setIsReplyDialogOpen(false)
     setReplyText("")
-    // Show success message or update UI
+    toast({
+      title: "Reply sent",
+      description: "Your reply has been sent successfully.",
+    })
   }
 
+  const handleRefresh = () => {
+    refetch()
+    toast({
+      title: "Messages refreshed",
+      description: "Message list has been updated.",
+    })
+  }
+
+  // Calculate counts based on current data
   const unreadCount = messages.filter((message) => !message.read && !message.archived).length
+  const starredCount = messages.filter((message) => message.starred).length
+  const archivedCount = messages.filter((message) => message.archived).length
+  const totalCount = messages.length
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6 p-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="icon" onClick={handleGoBack}>
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <h1 className="text-2xl font-bold">Messages</h1>
+          </div>
+        </div>
+        
+        <div className="space-y-4">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Card key={i}>
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-3 w-48" />
+                  </div>
+                  <Skeleton className="h-4 w-16" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-4 w-full mb-2" />
+                <Skeleton className="h-4 w-3/4" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6 p-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="icon" onClick={handleGoBack}>
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <h1 className="text-2xl font-bold">Messages</h1>
+          </div>
+        </div>
+        
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <h2 className="text-lg font-semibold mb-2">Failed to load messages</h2>
+              <p className="text-muted-foreground mb-4">There was an error loading your messages.</p>
+              <Button onClick={handleRefresh}>
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Try Again
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6 p-6">
@@ -231,6 +403,9 @@ export default function MessagesPage() {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
+          <Button variant="outline" size="icon" onClick={handleRefresh} title="Refresh">
+            <RefreshCw className="h-4 w-4" />
+          </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="icon">
@@ -241,10 +416,15 @@ export default function MessagesPage() {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Filter by</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Date (Newest first)</DropdownMenuItem>
-              <DropdownMenuItem>Date (Oldest first)</DropdownMenuItem>
-              <DropdownMenuItem>Read messages</DropdownMenuItem>
-              <DropdownMenuItem>Unread messages</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setActiveTab('inbox')}>
+                Inbox ({messages.filter(m => !m.archived).length})
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setActiveTab('starred')}>
+                Starred ({starredCount})
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setActiveTab('archived')}>
+                Archived ({archivedCount})
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -286,9 +466,9 @@ export default function MessagesPage() {
                   <ul className="divide-y">
                     {filteredMessages.map((message) => (
                       <li
-                        key={message.id}
+                        key={message._id}
                         className={`cursor-pointer hover:bg-muted/50 ${
-                          selectedMessage?.id === message.id ? "bg-muted" : message.read ? "" : "bg-muted/20"
+                          selectedMessage?._id === message._id ? "bg-muted" : message.read ? "" : "bg-muted/20"
                         }`}
                         onClick={() => handleMessageClick(message)}
                       >
@@ -305,7 +485,7 @@ export default function MessagesPage() {
                             </div>
                             <div className="flex items-center">
                               <button
-                                onClick={(e) => handleStarMessage(e, message.id)}
+                                onClick={(e) => handleStarMessage(e, message._id)}
                                 className="text-muted-foreground hover:text-yellow-500"
                               >
                                 <Star
@@ -322,7 +502,7 @@ export default function MessagesPage() {
                           <div className="mt-2 flex items-center justify-between">
                             <div className="flex items-center text-xs text-muted-foreground">
                               <Clock className="mr-1 h-3 w-3" />
-                              {message.date}
+                              {formatDate(message.createdAt)}
                             </div>
                             {!message.read && (
                               <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">
@@ -356,7 +536,7 @@ export default function MessagesPage() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleArchiveMessage(selectedMessage.id)}
+                      onClick={() => handleArchiveMessage(selectedMessage._id)}
                       title={selectedMessage.archived ? "Unarchive" : "Archive"}
                     >
                       {selectedMessage.archived ? <ArchiveX className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
@@ -364,7 +544,7 @@ export default function MessagesPage() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleDeleteMessage(selectedMessage.id)}
+                      onClick={() => handleDeleteMessage(selectedMessage._id)}
                       className="text-destructive hover:text-destructive"
                       title="Delete"
                     >
@@ -373,7 +553,7 @@ export default function MessagesPage() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={(e) => handleStarMessage(e, selectedMessage.id)}
+                      onClick={(e) => handleStarMessage(e, selectedMessage._id)}
                       title={selectedMessage.starred ? "Unstar" : "Star"}
                     >
                       <Star className={`h-4 w-4 ${selectedMessage.starred ? "fill-yellow-500 text-yellow-500" : ""}`} />
@@ -383,7 +563,7 @@ export default function MessagesPage() {
                 <div className="flex items-center gap-2 mt-2">
                   <Badge variant="outline" className="text-xs">
                     <Clock className="mr-1 h-3 w-3" />
-                    {selectedMessage.date}
+                    {formatDate(selectedMessage.createdAt)}
                   </Badge>
                   {!selectedMessage.read && (
                     <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">

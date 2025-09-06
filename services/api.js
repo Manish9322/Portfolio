@@ -12,6 +12,8 @@ export const portfolioApi = createApi({
     "Profile",
     "Blog",
     "Gallery",
+    "Contact",
+    "Feedback",
   ],
   endpoints: (builder) => ({
     // ======================================== PROFILE ======================================== //
@@ -240,6 +242,36 @@ export const portfolioApi = createApi({
       providesTags: (result, error, id) => [{ type: "Blog", id }],
     }),
 
+    // Like/Unlike a blog
+    toggleBlogLike: builder.mutation({
+      query: ({ id, userId }) => ({
+        url: `/blog/${id}`,
+        method: "PATCH",
+        body: { action: 'like', userId },
+      }),
+      invalidatesTags: (result, error, { id }) => [{ type: "Blog", id }],
+    }),
+
+    // Add a comment to a blog
+    addBlogComment: builder.mutation({
+      query: ({ id, name, email, website, comment }) => ({
+        url: `/blog/${id}`,
+        method: "PATCH",
+        body: { action: 'comment', name, email, website, comment },
+      }),
+      invalidatesTags: (result, error, { id }) => [{ type: "Blog", id }],
+    }),
+
+    // Share a blog (increment share count)
+    shareBlog: builder.mutation({
+      query: (id) => ({
+        url: `/blog/${id}`,
+        method: "PATCH",
+        body: { action: 'share' },
+      }),
+      invalidatesTags: (result, error, id) => [{ type: "Blog", id }],
+    }),
+
     // Add a blog
     addBlog: builder.mutation({
       query: (blog) => ({
@@ -325,6 +357,90 @@ export const portfolioApi = createApi({
       }),
       invalidatesTags: ["Gallery"],
     }),
+
+    // ======================================== CONTACT MESSAGES ======================================== //
+
+    // Fetch contact messages
+    getContactMessages: builder.query({
+      query: ({ page = 1, limit = 10, filter = 'all' } = {}) => 
+        `/contact?page=${page}&limit=${limit}&filter=${filter}`,
+      providesTags: ["Contact"],
+    }),
+
+    // Update contact message (mark as read, starred, archived, etc.)
+    updateContactMessage: builder.mutation({
+      query: ({ id, updates }) => ({
+        url: "/contact",
+        method: "PUT",
+        body: { id, updates },
+      }),
+      invalidatesTags: ["Contact"],
+    }),
+
+    // Delete contact message
+    deleteContactMessage: builder.mutation({
+      query: (id) => ({
+        url: "/contact",
+        method: "DELETE",
+        body: { id },
+      }),
+      invalidatesTags: ["Contact"],
+    }),
+
+    // ======================================== FEEDBACK ======================================== //
+
+    // Fetch all feedbacks
+    getFeedbacks: builder.query({
+      query: (params = {}) => {
+        const queryString = new URLSearchParams();
+        if (params.type) queryString.append("type", params.type);
+        if (params.visible !== undefined) queryString.append("visible", params.visible);
+        if (params.approved !== undefined) queryString.append("approved", params.approved);
+        if (params.limit) queryString.append("limit", params.limit);
+        
+        return `/feedback${queryString.toString() ? `?${queryString.toString()}` : ""}`;
+      },
+      providesTags: ["Feedback"],
+    }),
+
+    // Add new feedback
+    addFeedback: builder.mutation({
+      query: (feedback) => ({
+        url: "/feedback",
+        method: "POST",
+        body: feedback,
+      }),
+      invalidatesTags: ["Feedback"],
+    }),
+
+    // Update feedback
+    updateFeedback: builder.mutation({
+      query: (feedback) => ({
+        url: "/feedback",
+        method: "PUT",
+        body: feedback,
+      }),
+      invalidatesTags: ["Feedback"],
+    }),
+
+    // Delete feedback
+    deleteFeedback: builder.mutation({
+      query: (id) => ({
+        url: `/feedback?id=${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Feedback"],
+    }),
+
+    // Reorder feedbacks
+    reorderFeedbacks: builder.mutation({
+      query: (feedbackIds) => ({
+        url: "/feedback/reorder",
+        method: "POST",
+        body: { feedbackIds },
+      }),
+      invalidatesTags: ["Feedback"],
+    }),
   }),
 });
 
@@ -363,10 +479,23 @@ export const {
   useUpdateBlogMutation,
   useDeleteBlogMutation,
   useUpdateBlogOrderMutation,
+  useToggleBlogLikeMutation,
+  useAddBlogCommentMutation,
+  useShareBlogMutation,
 
   useGetGalleryQuery,
   useAddGalleryMutation,
   useUpdateGalleryMutation,
   useDeleteGalleryMutation,
   useUpdateGalleryOrderMutation,
+
+  useGetContactMessagesQuery,
+  useUpdateContactMessageMutation,
+  useDeleteContactMessageMutation,
+
+  useGetFeedbacksQuery,
+  useAddFeedbackMutation,
+  useUpdateFeedbackMutation,
+  useDeleteFeedbackMutation,
+  useReorderFeedbacksMutation,
 } = portfolioApi;
