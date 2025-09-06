@@ -1,6 +1,25 @@
 import { NextResponse } from "next/server";
 import { MongoClient, ServerApiVersion } from "mongodb";
 import nodemailer from "nodemailer";
+import _db from '@/utils/db';
+import Activity from '@/models/Activity.model';
+
+// Helper function to create activity log
+const logActivity = async (action, item, details, category = 'messages', icon = 'MessageSquare') => {
+  try {
+    await _db();
+    await Activity.create({
+      action,
+      item,
+      details,
+      category,
+      icon,
+      user: 'System'
+    });
+  } catch (error) {
+    console.error('Error logging activity:', error);
+  }
+};
 
 // Telegram notification function
 const sendTelegramNotification = async (firstName, lastName, email, message) => {
@@ -87,6 +106,15 @@ export async function POST(request) {
 
     // Send Telegram notification (this is the main functionality you want)
     telegramSent = await sendTelegramNotification(firstName, lastName, email, message);
+
+    // Log the contact message activity
+    await logActivity(
+      'Received message',
+      `from ${name}`,
+      `New inquiry from ${name} (${email}): "${message.substring(0, 100)}${message.length > 100 ? '...' : ''}"`,
+      'messages',
+      'MessageSquare'
+    );
 
     // Try to save to MongoDB (optional)
     if (client) {

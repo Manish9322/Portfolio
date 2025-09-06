@@ -1,6 +1,24 @@
 import { NextResponse } from 'next/server';
 import _db from '@/utils/db';
 import Experience from '@/models/Experience.model';
+import Activity from '@/models/Activity.model';
+
+// Helper function to create activity log
+const logActivity = async (action, item, details, category = 'experience', icon = 'Plus', relatedId = null) => {
+  try {
+    await Activity.create({
+      action,
+      item,
+      details,
+      category,
+      icon,
+      relatedId,
+      relatedModel: 'Experience'
+    });
+  } catch (error) {
+    console.error('Error logging activity:', error);
+  }
+};
 
 // GET all experiences
 export async function GET() {
@@ -22,6 +40,17 @@ export async function POST(request) {
     const maxOrder = await Experience.findOne().sort({ order: -1 });
     const newOrder = maxOrder ? maxOrder.order + 1 : 0;
     const experience = await Experience.create({ ...data, order: newOrder });
+    
+    // Log activity
+    await logActivity(
+      'Added experience',
+      experience.company || 'New Company',
+      `Added work experience at ${experience.company} as ${experience.position || 'Position'}`,
+      'experience',
+      'Plus',
+      experience._id.toString()
+    );
+    
     return NextResponse.json(experience);
   } catch (error) {
     return NextResponse.json({ error: 'Error creating experience' }, { status: 500 });
@@ -44,6 +73,16 @@ export async function PUT(request) {
     if (!updatedExperience) {
       return NextResponse.json({ error: 'Experience not found' }, { status: 404 });
     }
+
+    // Log activity
+    await logActivity(
+      'Updated experience',
+      updatedExperience.company || 'Company',
+      `Updated work experience at ${updatedExperience.company} as ${updatedExperience.position || 'Position'}`,
+      'experience',
+      'Edit',
+      updatedExperience._id.toString()
+    );
 
     return NextResponse.json(updatedExperience);
   } catch (error) {
@@ -90,6 +129,16 @@ export async function DELETE(request) {
     if (!deletedExperience) {
       return NextResponse.json({ error: 'Experience not found' }, { status: 404 });
     }
+
+    // Log activity
+    await logActivity(
+      'Removed experience',
+      deletedExperience.company || 'Company',
+      `Removed work experience at ${deletedExperience.company} as ${deletedExperience.position || 'Position'}`,
+      'experience',
+      'Trash',
+      deletedExperience._id.toString()
+    );
 
     return NextResponse.json({ message: 'Experience deleted successfully' });
   } catch (error) {

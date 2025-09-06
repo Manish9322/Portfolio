@@ -1,6 +1,24 @@
 import { NextResponse } from 'next/server';
 import _db from '@/utils/db';
 import Profile from '@/models/Profile.model';
+import Activity from '@/models/Activity.model';
+
+// Helper function to create activity log
+const logActivity = async (action, item, details, category = 'profile', icon = 'User', relatedId = null) => {
+  try {
+    await Activity.create({
+      action,
+      item,
+      details,
+      category,
+      icon,
+      relatedId,
+      relatedModel: 'Profile'
+    });
+  } catch (error) {
+    console.error('Error logging activity:', error);
+  }
+};
 
 // GET profile
 export async function GET() {
@@ -27,6 +45,16 @@ export async function PUT(request) {
       _id ? { _id } : {},
       updateData,
       { new: true, upsert: true }
+    );
+
+    // Log activity
+    await logActivity(
+      'Updated profile',
+      updatedProfile.name || 'Profile Information',
+      `Updated profile information including personal details and contact information`,
+      'profile',
+      'User',
+      updatedProfile._id.toString()
     );
 
     return NextResponse.json(updatedProfile);

@@ -1,6 +1,24 @@
 import { NextResponse } from 'next/server';
 import _db from '@/utils/db';
 import Skill from '@/models/Skills.model';
+import Activity from '@/models/Activity.model';
+
+// Helper function to create activity log
+const logActivity = async (action, item, details, category = 'skills', icon = 'Plus', relatedId = null) => {
+  try {
+    await Activity.create({
+      action,
+      item,
+      details,
+      category,
+      icon,
+      relatedId,
+      relatedModel: 'Skill'
+    });
+  } catch (error) {
+    console.error('Error logging activity:', error);
+  }
+};
 
 // GET all skills
 export async function GET() {
@@ -22,6 +40,17 @@ export async function POST(request) {
     const maxOrder = await Skill.findOne().sort({ order: -1 });
     const newOrder = maxOrder ? maxOrder.order + 1 : 0;
     const skill = await Skill.create({ ...data, order: newOrder });
+    
+    // Log activity
+    await logActivity(
+      'Added new skill',
+      skill.category || 'New Skill Category',
+      `Added skill category "${skill.category}" with ${skill.items ? skill.items.length : 0} skills`,
+      'skills',
+      'Plus',
+      skill._id.toString()
+    );
+    
     return NextResponse.json(skill);
   } catch (error) {
     return NextResponse.json({ error: 'Error creating skill' }, { status: 500 });
@@ -44,6 +73,16 @@ export async function PUT(request) {
     if (!updatedSkill) {
       return NextResponse.json({ error: 'Skill not found' }, { status: 404 });
     }
+    
+    // Log activity
+    await logActivity(
+      'Updated skill',
+      updatedSkill.category || 'Skill Category',
+      `Updated skill category "${updatedSkill.category}" with ${updatedSkill.items ? updatedSkill.items.length : 0} skills`,
+      'skills',
+      'Edit',
+      updatedSkill._id.toString()
+    );
     
     return NextResponse.json(updatedSkill);
   } catch (error) {
@@ -90,6 +129,16 @@ export async function DELETE(request) {
     if (!deletedSkill) {
       return NextResponse.json({ error: 'Skill not found' }, { status: 404 });
     }
+    
+    // Log activity
+    await logActivity(
+      'Removed skill',
+      deletedSkill.category || 'Skill Category',
+      `Removed skill category "${deletedSkill.category}" from the skills section`,
+      'skills',
+      'Trash',
+      deletedSkill._id.toString()
+    );
     
     return NextResponse.json({ message: 'Skill deleted successfully' });
   } catch (error) {
