@@ -14,6 +14,7 @@ export const portfolioApi = createApi({
     "Gallery",
     "Contact",
     "Feedback",
+    "Activity",
   ],
   endpoints: (builder) => ({
     // ======================================== PROFILE ======================================== //
@@ -441,6 +442,26 @@ export const portfolioApi = createApi({
       }),
       invalidatesTags: ["Feedback"],
     }),
+
+    // ======================================== ACTIVITY ======================================== //
+
+    // Fetch activities
+    getActivities: builder.query({
+      query: (params = {}) => {
+        const queryString = new URLSearchParams();
+        
+        if (params.page) queryString.append("page", params.page.toString());
+        if (params.limit) queryString.append("limit", params.limit.toString());
+        if (params.category) queryString.append("category", params.category);
+        if (params.user) queryString.append("user", params.user);
+        if (params.search) queryString.append("search", params.search);
+        if (params.startDate) queryString.append("startDate", params.startDate);
+        if (params.endDate) queryString.append("endDate", params.endDate);
+        
+        return `/activity${queryString.toString() ? `?${queryString.toString()}` : ""}`;
+      },
+      providesTags: ["Activity"],
+    }),
   }),
 });
 
@@ -498,4 +519,6 @@ export const {
   useUpdateFeedbackMutation,
   useDeleteFeedbackMutation,
   useReorderFeedbacksMutation,
+
+  useGetActivitiesQuery,
 } = portfolioApi;
