@@ -13,7 +13,8 @@ const ContactBenefits = () => {
           "Quick response within 24-48 hours",
           "Professional collaboration opportunities",
           "Open to freelance projects and consulting",
-          "Technical expertise and problem-solving"
+          "Technical expertise and problem-solving",
+          "Friendly and approachable communication",
         ].map((benefit, index) => (
           <li key={index} className="flex items-start">
             <span className="mr-2 text-primary">✓</span>

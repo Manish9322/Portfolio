@@ -9,6 +9,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { BookOpen, ArrowRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import Header from "@/components/Header";
+import { FooterSection } from "@/components/home/FooterSection";
 
 interface Blog {
   _id: string;
@@ -48,118 +50,71 @@ export default function BlogsPage() {
 
   if (isLoadingBlogs) {
     return (
-      <div className="flex min-h-screen flex-col">
-        <header className="border-b">
-          <div className="container mx-auto flex h-16 items-center justify-between px-4 max-w-7xl">
-            <Skeleton className="h-8 w-32" />
-            <div className="flex items-center gap-6">
-              <Skeleton className="h-4 w-16" />
-              <Skeleton className="h-4 w-16" />
-              <Skeleton className="h-4 w-16" />
-              <Skeleton className="h-4 w-16" />
-            </div>
-          </div>
-        </header>
-
-        <main className="flex-1">
-          <section className="bg-muted py-20">
-            <div className="container mx-auto px-4 text-center">
-              <Skeleton className="h-12 w-64 mx-auto mb-4" />
-              <Skeleton className="h-4 w-full max-w-2xl mx-auto" />
-              <div className="mt-8 flex justify-center">
-                <Skeleton className="h-12 w-full max-w-md" />
+      <>
+        <Header backLink="/" backText="Home" />
+        <div className="flex min-h-screen flex-col bg-background">
+          <main className="flex-1">
+            <section className="bg-muted/50 py-20">
+              <div className="container mx-auto px-4 text-center">
+                <Skeleton className="h-12 w-64 mx-auto mb-4" />
+                <Skeleton className="h-4 w-full max-w-2xl mx-auto" />
+                <div className="mt-8 flex justify-center">
+                  <Skeleton className="h-12 w-full max-w-md" />
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
 
-          <section className="py-16">
-            <div className="container mx-auto px-4 max-w-7xl">
-              <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-                {[...Array(6)].map((_, i) => (
-                  <Card key={i} className="overflow-hidden">
-                    <CardContent className="p-0">
-                      <Skeleton className="aspect-video w-full" />
-                      <div className="p-6 space-y-4">
-                        <div className="flex gap-2">
-                          <Skeleton className="h-6 w-16" />
-                          <Skeleton className="h-6 w-16" />
-                        </div>
-                        <Skeleton className="h-6 w-full" />
-                        <Skeleton className="h-4 w-full" />
-                        <div className="flex justify-between items-center">
-                          <div className="flex items-center gap-2">
-                            <Skeleton className="h-8 w-8 rounded-full" />
-                            <Skeleton className="h-4 w-24" />
+            <section className="py-16">
+              <div className="container mx-auto px-4 max-w-7xl">
+                <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+                  {[...Array(6)].map((_, i) => (
+                    <Card key={i} className="overflow-hidden">
+                      <CardContent className="p-0">
+                        <Skeleton className="aspect-video w-full" />
+                        <div className="p-6 space-y-4">
+                          <div className="flex gap-2">
+                            <Skeleton className="h-6 w-16" />
+                            <Skeleton className="h-6 w-16" />
                           </div>
-                          <div className="flex items-center gap-3">
-                            <Skeleton className="h-4 w-24" />
-                            <Skeleton className="h-4 w-16" />
+                          <Skeleton className="h-6 w-full" />
+                          <Skeleton className="h-4 w-full" />
+                          <div className="flex justify-between items-center">
+                            <div className="flex items-center gap-2">
+                              <Skeleton className="h-8 w-8 rounded-full" />
+                              <Skeleton className="h-4 w-24" />
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <Skeleton className="h-4 w-24" />
+                              <Skeleton className="h-4 w-16" />
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
               </div>
-            </div>
-          </section>
-        </main>
-
-        <footer className="border-t py-8">
-          <div className="container mx-auto px-4 text-center">
-            <Skeleton className="h-4 w-48 mx-auto" />
-          </div>
-        </footer>
-      </div>
+            </section>
+          </main>
+        </div>
+        <FooterSection />
+      </>
     );
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      {/* Header */}
-      <header className="border-b">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4 max-w-7xl">
-          <Link href="/" className="text-xl font-bold">
-            {profileData?.name || "Manish Sonawane"}
-          </Link>
-          <nav className="flex items-center gap-6">
-            <Link
-              href="/"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground"
-            >
-              Home
-            </Link>
-            <Link
-              href="/work"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground"
-            >
-              Work
-            </Link>
-            <Link
-              href="/education"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground"
-            >
-              Education
-            </Link>
-            <Link
-              href="/contact"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground"
-            >
-              Contact
-            </Link>
-          </nav>
-        </div>
-      </header>
-
-      <main className="flex-1">
-        {/* Hero Section */}
-        <section className="bg-muted py-20">
-          <div className="container mx-auto px-4 text-center">
-            <h1 className="mb-6 text-4xl font-bold tracking-tight sm:text-5xl">
-              Blog & Articles
-            </h1>
-            <p className="mx-auto mb-8 max-w-2xl text-lg text-muted-foreground">
-              Discover insights, tutorials, and thoughts on web development,
+    <>
+      <Header backLink="/" backText="Home" />
+      <div className="flex min-h-screen flex-col bg-background">
+        <main className="flex-1">
+          {/* Hero Section */}
+          <section className="bg-muted/50 py-20">
+            <div className="container mx-auto px-4 text-center">
+              <h1 className="mb-6 text-4xl font-bold tracking-tight sm:text-5xl">
+                Blog & Articles
+              </h1>
+              <p className="mx-auto mb-8 max-w-2xl text-lg text-muted-foreground">
+                Discover insights, tutorials, and thoughts on web development,
               design, and technology
             </p>
             <div className="flex items-center justify-center">
@@ -199,15 +154,8 @@ export default function BlogsPage() {
           </div>
         </section>
       </main>
-
-      {/* Footer */}
-      <footer className="border-t py-8">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} {profileData?.name || "Manish Sonawane"}. All rights reserved.
-          </p>
-        </div>
-      </footer>
-    </div>
+      </div>
+      <FooterSection />
+    </>
   );
 }

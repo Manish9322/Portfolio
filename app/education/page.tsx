@@ -10,6 +10,8 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Card, CardContent } from "@/components/ui/card"
 import { getPortfolioData } from "@/lib/portfolio-data"
 import { useGetEducationQuery, useGetProfileQuery } from "@/services/api"
+import Header from "@/components/Header"
+import { FooterSection } from "@/components/home/FooterSection"
 
 
 interface Education {
@@ -95,37 +97,19 @@ export default function EducationPage() {
     )
 
   return (
-    <div className="flex min-h-screen flex-col">
-      {/* Header */}
-      <header className="border-b">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4 max-w-7xl">
-          <Link href="/" className="text-xl font-bold">
-            {profileData?.name || "Manish Sonawane"}
-          </Link>
-          <nav className="flex items-center gap-6">
-            <Link href="/" className="text-sm font-medium text-muted-foreground hover:text-foreground">
-              Home
-            </Link>
-            <Link href="/work" className="text-sm font-medium">
-              Work
-            </Link>
-            <Link href="/contact" className="text-sm font-medium text-muted-foreground hover:text-foreground">
-              Contact
-            </Link>
-          </nav>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="flex-1">
-        {/* Hero Section */}
-        <section className="bg-muted py-20">
-          <div className="container mx-auto px-4 text-center">
-            <h1 className="mb-6 text-4xl font-bold tracking-tight sm:text-5xl">My Education & Certifications</h1>
-            <p className="mx-auto mb-8 max-w-2xl text-lg text-muted-foreground">
-              My academic background and professional certifications
-            </p>
-          </div>
+    <>
+      <Header backLink="/" backText="Home" />
+      <div className="flex min-h-screen flex-col bg-background">
+        {/* Main Content */}
+        <main className="flex-1">
+          {/* Hero Section */}
+          <section className="bg-muted/50 py-20">
+            <div className="container mx-auto px-4 text-center">
+              <h1 className="mb-6 text-4xl font-bold tracking-tight sm:text-5xl">My Education & Certifications</h1>
+              <p className="mx-auto mb-8 max-w-2xl text-lg text-muted-foreground">
+                My academic background and professional certifications
+              </p>
+            </div>
         </section>
 
         {/* Projects Grid */}
@@ -261,16 +245,9 @@ export default function EducationPage() {
           </div>
           </div>
         </section>
-      </main>
-
-      {/* Footer */}
-      <footer className="border-t py-8">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} {profileData?.name || "Manish Sonawane"}. All rights reserved.
-          </p>
-        </div>
-      </footer>
-    </div>
+        </main>
+      </div>
+      <FooterSection />
+    </>
   )
 }

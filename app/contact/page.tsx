@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { getPortfolioData } from "@/lib/portfolio-data"
+import Header from "@/components/Header"
+import { FooterSection } from "@/components/home/FooterSection"
 
 export default function ContactPage() {
   const { name, email, location } = getPortfolioData()
@@ -22,7 +24,7 @@ export default function ContactPage() {
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [error, setError] = useState("")
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({
       ...prev,
@@ -30,7 +32,7 @@ export default function ContactPage() {
     }))
   }
 
-  const handleSubmit = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsSubmitting(true)
     setError("")
@@ -61,41 +63,23 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      {/* Header */}
-      <header className="border-b">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <Link href="/" className="text-xl font-bold">
-            {name}
-          </Link>
-          <nav className="flex items-center gap-6">
-            <Link href="/" className="text-sm font-medium text-muted-foreground hover:text-foreground">
-              Home
-            </Link>
-            <Link href="/work" className="text-sm font-medium text-muted-foreground hover:text-foreground">
-              Work
-            </Link>
-            <Link href="/contact" className="text-sm font-medium">
-              Contact
-            </Link>
-          </nav>
-        </div>
-      </header>
+    <>
+      <Header backLink="/" backText="Home" />
+      <div className="flex min-h-screen flex-col bg-background">
+        {/* Main Content */}
+        <main className="flex-1">
+          {/* Hero Section */}
+          <section className="bg-muted/50 py-20">
+            <div className="container mx-auto px-4 text-center">
+              <h1 className="mb-6 text-4xl font-bold tracking-tight sm:text-5xl">Get in Touch</h1>
+              <p className="mx-auto mb-8 max-w-2xl text-lg text-muted-foreground">
+                I'm currently available for freelance work and full-time positions. If you're interested in working
+                together, get in touch!
+              </p>
+            </div>
+          </section>
 
-      {/* Main Content */}
-      <main className="flex-1">
-        {/* Hero Section */}
-        <section className="bg-muted py-20">
-          <div className="container mx-auto px-4 text-center">
-            <h1 className="mb-6 text-4xl font-bold tracking-tight sm:text-5xl">Get in Touch</h1>
-            <p className="mx-auto mb-8 max-w-2xl text-lg text-muted-foreground">
-              I'm currently available for freelance work and full-time positions. If you're interested in working
-              together, get in touch!
-            </p>
-          </div>
-        </section>
-
-        {/* Contact Section */}
+          {/* Contact Section */}
         <section className="py-16">
           <div className="container mx-auto grid gap-10 px-4 md:grid-cols-2 lg:gap-16">
             <div>
@@ -189,16 +173,9 @@ export default function ContactPage() {
             </div>
           </div>
         </section>
-      </main>
-
-      {/* Footer */}
-      <footer className="border-t py-8">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} {name}. All rights reserved.
-          </p>
-        </div>
-      </footer>
-    </div>
+        </main>
+      </div>
+      <FooterSection />
+    </>
   )
 }

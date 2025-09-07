@@ -7,6 +7,8 @@ import { ExternalLink, Github, Eye } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useGetProjectsQuery } from "@/services/api"
+import Header from "@/components/Header"
+import { FooterSection } from "@/components/home/FooterSection"
 
 interface Project {
   _id?: string
@@ -23,31 +25,13 @@ export default function WorkPage() {
   const { data: projects = [], isLoading } = useGetProjectsQuery(undefined)
 
   return (
-    <div className="flex min-h-screen flex-col">
-      {/* Header */}
-      <header className="border-b">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4 max-w-7xl">
-          <Link href="/" className="text-xl font-bold">
-            Portfolio
-          </Link>
-          <nav className="flex items-center gap-6">
-            <Link href="/" className="text-sm font-medium text-muted-foreground hover:text-foreground">
-              Home
-            </Link>
-            <Link href="/work" className="text-sm font-medium">
-              Work
-            </Link>
-            <Link href="/contact" className="text-sm font-medium text-muted-foreground hover:text-foreground">
-              Contact
-            </Link>
-          </nav>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="flex-1">
-        {/* Hero Section */}
-        <section className="bg-muted py-20">
+    <>
+      <Header backLink="/" backText="Home" />
+      <div className="flex min-h-screen flex-col bg-background">
+        {/* Main Content */}
+        <main className="flex-1">
+          {/* Hero Section */}
+          <section className="bg-muted/50 py-20">
           <div className="container mx-auto px-4 text-center">
             <h1 className="mb-6 text-4xl font-bold tracking-tight sm:text-5xl">My Work</h1>
             <p className="mx-auto mb-8 max-w-2xl text-lg text-muted-foreground">
@@ -129,7 +113,7 @@ export default function WorkPage() {
                         {project.githubUrl && (
                           <Button variant="outline" size="sm" className="gap-2" asChild>
                             <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
-                              <Github className="h-4 w-4" /> Code
+                              <Github className="h-4 w-4" />
                             </a>
                           </Button>
                         )}
@@ -142,15 +126,8 @@ export default function WorkPage() {
           </div>
         </section>
       </main>
-
-      {/* Footer */}
-      <footer className="border-t py-8">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Portfolio. All rights reserved.
-          </p>
-        </div>
-      </footer>
-    </div>
+      </div>
+      <FooterSection />
+    </>
   )
 }
