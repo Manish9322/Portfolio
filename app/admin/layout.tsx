@@ -17,7 +17,8 @@ import {
   Sun,
   Moon,
   ImageIcon,
-  MessageCircle
+  MessageCircle,
+  BarChart3
 } from "lucide-react"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import { 
@@ -34,6 +35,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 
 const sidebarNavItems = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/admin/activity", label: "Activity", icon: Activity },
   { href: "/admin/profile", label: "Profile", icon: User },
   { href: "/admin/education", label: "Education", icon: GraduationCap },

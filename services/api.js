@@ -462,6 +462,20 @@ export const portfolioApi = createApi({
       },
       providesTags: ["Activity"],
     }),
+
+    // ======================================== ANALYTICS ======================================== //
+
+    // Fetch analytics data
+    getAnalytics: builder.query({
+      query: (params = {}) => {
+        const queryString = new URLSearchParams();
+        
+        if (params.days) queryString.append("days", params.days.toString());
+        
+        return `/analytics${queryString.toString() ? `?${queryString.toString()}` : ""}`;
+      },
+      providesTags: ["Activity"], // Use Activity tag since analytics depend on activities
+    }),
   }),
 });
 
@@ -521,4 +535,5 @@ export const {
   useReorderFeedbacksMutation,
 
   useGetActivitiesQuery,
+  useGetAnalyticsQuery,
 } = portfolioApi;
