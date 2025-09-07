@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useState } from "react"
-import { Github, Linkedin, Instagram, Twitter, ExternalLink } from "lucide-react"
+import { Github, Linkedin, Instagram, Code, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -55,11 +55,11 @@ export function SocialConnectSection() {
       description: "Follow my creative journey and behind-the-scenes content",
     },
     {
-      name: "Twitter",
-      icon: <Twitter className="h-5 w-5" />,
-      url: profileData?.socialLinks?.twitter || "",
-      color: "bg-[#1DA1F2] hover:bg-[#1DA1F2]/90",
-      description: "Join my conversations about tech, design, and industry trends",
+      name: "LeetCode",
+      icon: <Code className="h-5 w-5" />,
+      url: "https://leetcode.com/u/manish-sonawane/",
+      color: "bg-[#FFA116] hover:bg-[#FFA116]/90",
+      description: "Check out my coding solutions and competitive programming journey",
     },
   ]
 
