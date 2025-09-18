@@ -48,6 +48,18 @@ export default function BlogsPage() {
       )
   );
 
+  // Sort blogs by publishedAt date to get the latest first
+  const sortedBlogs = [...filteredBlogs].sort(
+    (a: any, b: any) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+  );
+
+  const latestBlog = sortedBlogs[0];
+  const otherBlogs = sortedBlogs.slice(1);
+
+  // If search is active, show all filtered results in grid instead of separating latest
+  const showSeparateLatest = !searchQuery && sortedBlogs.length > 0;
+  const displayBlogs = showSeparateLatest ? otherBlogs : sortedBlogs;
+
   if (isLoadingBlogs) {
     return (
       <>
@@ -110,35 +122,77 @@ export default function BlogsPage() {
           {/* Hero Section */}
           <section className="bg-muted/50 py-20">
             <div className="container mx-auto px-4 text-center">
-              <h1 className="mb-6 text-4xl font-bold tracking-tight sm:text-5xl">
-                Blog & Articles
+              <h1 className="mb-6 text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
+                <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                  Blog & Articles
+                </span>
               </h1>
-              <p className="mx-auto mb-8 max-w-2xl text-lg text-muted-foreground">
-                Discover insights, tutorials, and thoughts on web development,
-              design, and technology
-            </p>
-            <div className="flex items-center justify-center">
-              <div className="relative w-full max-w-md">
-                <Input
-                  type="search"
-                  placeholder="Search blogs by title, description, or tags..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-4 pr-10 py-2"
-                />
-                <BookOpen className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground h-5 w-5" />
+              
+              <p className="mx-auto mb-8 max-w-3xl text-lg sm:text-xl text-muted-foreground">
+                Discover insights, tutorials, and thoughts on web development, design, and technology
+              </p>
+
+              <div className="flex items-center justify-center">
+                <div className="relative w-full max-w-lg">
+                  <Input
+                    type="search"
+                    placeholder="Search blogs by title, description, or tags..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-4 pr-12 py-3 text-base border-2 focus:border-primary"
+                  />
+                  <BookOpen className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground h-5 w-5" />
+                </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
 
         {/* Blog Grid */}
         <section className="py-20 bg-background">
           <div className="container mx-auto px-4 max-w-7xl">
+            {/* Latest Blog - Featured (only show when not searching) */}
+            {!isLoadingBlogs && showSeparateLatest && latestBlog && (
+              <div className="mb-12">
+                <div className="mb-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="bg-gradient-to-r from-primary to-secondary text-white px-3 py-1 rounded-full text-sm font-medium">
+                      Latest
+                    </div>
+                    <h2 className="text-2xl sm:text-3xl font-bold">Latest Blog Post</h2>
+                  </div>
+                </div>
+                <BlogCard blog={latestBlog} variant="featured" />
+              </div>
+            )}
+
+            {/* Other Blogs Grid or All Blogs when searching */}
+            {!isLoadingBlogs && displayBlogs.length > 0 && (
+              <div className="mb-6">
+                <h3 className="text-xl sm:text-2xl font-bold mb-6">
+                  {searchQuery ? `Search Results (${displayBlogs.length})` : "More Articles"}
+                </h3>
+              </div>
+            )}
+
+            {/* No results message */}
+            {!isLoadingBlogs && searchQuery && displayBlogs.length === 0 && (
+              <div className="text-center py-12">
+                <h3 className="text-xl font-semibold mb-2">No blogs found</h3>
+                <p className="text-muted-foreground">
+                  We couldn't find any blogs matching "{searchQuery}". Try different keywords or{" "}
+                  <button 
+                    onClick={() => setSearchQuery("")}
+                    className="text-primary hover:underline font-medium"
+                  >
+                    clear your search
+                  </button>
+                </p>
+              </div>
+            )}
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-12">
               {isLoadingBlogs
-                ? [...Array(3)].map((_, i) => (
+                ? [...Array(6)].map((_, i) => (
                     <div key={i} className="space-y-4">
                       <Skeleton className="h-48 w-full" />
                       <Skeleton className="h-4 w-24" />
@@ -147,7 +201,7 @@ export default function BlogsPage() {
                       <Skeleton className="h-4 w-2/3" />
                     </div>
                   ))
-                : blogs.map((blog: Blog) => (
+                : displayBlogs.map((blog: Blog) => (
                     <BlogCard key={blog._id} blog={blog} variant="compact" />
                   ))}
             </div>

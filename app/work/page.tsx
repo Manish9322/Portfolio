@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { useGetProjectsQuery } from "@/services/api"
 import Header from "@/components/Header"
 import { FooterSection } from "@/components/home/FooterSection"
+import { ProjectCard } from "@/components/ui/project-card"
 
 interface Project {
   _id?: string
@@ -24,6 +25,12 @@ interface Project {
 export default function WorkPage() {
   const { data: projects = [], isLoading } = useGetProjectsQuery(undefined)
 
+  // Sort projects by creation date or featured status to get the latest first
+  // Assuming projects have a createdAt field or we can use the order they come in
+  const sortedProjects = [...projects].reverse(); // Reverse to get newest first (assuming API returns oldest first)
+  const latestProject = sortedProjects[0];
+  const otherProjects = sortedProjects.slice(1);
+
   return (
     <>
       <Header backLink="/" backText="Home" />
@@ -32,14 +39,18 @@ export default function WorkPage() {
         <main className="flex-1">
           {/* Hero Section */}
           <section className="bg-muted/50 py-20">
-          <div className="container mx-auto px-4 text-center">
-            <h1 className="mb-6 text-4xl font-bold tracking-tight sm:text-5xl">My Work</h1>
-            <p className="mx-auto mb-8 max-w-2xl text-lg text-muted-foreground">
-              A collection of my projects, showcasing my skills and experience in web development, design, and
-              problem-solving.
-            </p>
-          </div>
-        </section>
+            <div className="container mx-auto px-4 text-center">
+              <h1 className="mb-6 text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
+                <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                  My Work
+                </span>
+              </h1>
+              
+              <p className="mx-auto mb-8 max-w-3xl text-lg sm:text-xl text-muted-foreground">
+                A collection of my projects, showcasing my skills and experience in web development, design, and problem-solving
+              </p>
+            </div>
+          </section>
 
         {/* Projects Grid */}
         <section className="py-16">
@@ -68,60 +79,36 @@ export default function WorkPage() {
                 ))}
               </div>
             ) : (
-              <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-3">
-                {projects.map((project: Project) => (
-                  <div
-                    key={project._id}
-                    className="group flex flex-col overflow-hidden rounded-lg border bg-card shadow-sm transition-all hover:shadow-md"
-                  >
-                    <div className="relative aspect-video overflow-hidden">
-                      <Image
-                        src={project.imageUrl || "/placeholder.svg"}
-                        alt={project.title}
-                        fill
-                        className="object-cover transition-transform duration-300 group-hover:scale-105"
-                      />
-                      {project.featured && (
-                        <div className="absolute right-2 top-2 rounded-full bg-primary px-2 py-1 text-xs font-medium text-primary-foreground">
-                          Featured
+              <>
+                {/* Latest Project - Featured */}
+                {latestProject && (
+                  <div className="mb-12">
+                    <div className="mb-6">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="bg-gradient-to-r from-primary to-secondary text-white px-3 py-1 rounded-full text-sm font-medium">
+                          Latest
                         </div>
-                      )}
-                    </div>
-                    <div className="flex flex-1 flex-col p-6">
-                      <h2 className="mb-2 text-xl font-bold">{project.title}</h2>
-                      <p className="mb-4 flex-1 text-muted-foreground">{project.description}</p>
-                      <div className="mb-4 flex flex-wrap gap-2">
-                        {project.tags.map((tag: string, index: number) => (
-                          <Badge key={index} variant="secondary">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-                      <div className="flex gap-3">
-                        <Button variant="default" size="sm" className="gap-2" asChild>
-                          <Link href={`/work/${project._id}`}>
-                            <Eye className="h-4 w-4" /> View Details
-                          </Link>
-                        </Button>
-                        {project.liveUrl && (
-                          <Button variant="outline" size="sm" className="gap-2" asChild>
-                            <a href={project.liveUrl} target="_blank" rel="noopener noreferrer">
-                              <ExternalLink className="h-4 w-4" /> Live Demo
-                            </a>
-                          </Button>
-                        )}
-                        {project.githubUrl && (
-                          <Button variant="outline" size="sm" className="gap-2" asChild>
-                            <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
-                              <Github className="h-4 w-4" />
-                            </a>
-                          </Button>
-                        )}
+                        <h2 className="text-2xl sm:text-3xl font-bold">Latest Project</h2>
                       </div>
                     </div>
+                    <ProjectCard project={latestProject} variant="featured" />
                   </div>
-                ))}
-              </div>
+                )}
+
+                {/* Other Projects Grid */}
+                {otherProjects.length > 0 && (
+                  <>
+                    <div className="mb-6">
+                      <h3 className="text-xl sm:text-2xl font-bold mb-6">More Projects</h3>
+                    </div>
+                    <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-3">
+                      {otherProjects.map((project: Project) => (
+                        <ProjectCard key={project._id} project={project} variant="default" />
+                      ))}
+                    </div>
+                  </>
+                )}
+              </>
             )}
           </div>
         </section>
