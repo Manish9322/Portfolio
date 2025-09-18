@@ -11,6 +11,7 @@ import {
   Calendar,
   Tag,
   Clock,
+  Info,
   Users,
   Target,
   Lightbulb,
@@ -22,6 +23,7 @@ import {
   Share2,
   BookOpen,
   ExternalLink,
+  Puzzle,
   Facebook,
   Twitter,
   Linkedin,
@@ -280,7 +282,7 @@ export default function ProjectDetails() {
                   <Card className="mb-8">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
-                        <Target className="h-5 w-5" />
+                        <Info className="h-5 w-5" />
                         Project Overview
                       </CardTitle>
                     </CardHeader>
@@ -304,7 +306,7 @@ export default function ProjectDetails() {
                     <Card className="mb-8">
                       <CardHeader>
                         <CardTitle className="flex items-center gap-2">
-                          <Target className="h-5 w-5" />
+                          <Puzzle className="h-5 w-5" />
                           Challenges & Solutions
                         </CardTitle>
                       </CardHeader>
@@ -313,7 +315,7 @@ export default function ProjectDetails() {
                           {project.challenges &&
                             project.challenges.length > 0 && (
                               <div>
-                                <h4 className="font-semibold text-orange-600 dark:text-orange-400 mb-3 flex items-center gap-2">
+                                <h4 className="font-semibold text-black dark:text-white mb-3 flex items-center gap-2">
                                   <Target className="h-4 w-4" />
                                   Challenges Faced
                                 </h4>
@@ -322,7 +324,7 @@ export default function ProjectDetails() {
                                     (challenge: string, index: number) => (
                                       <div
                                         key={index}
-                                        className="p-4 border border-orange-200 dark:border-orange-800 rounded-lg bg-orange-50 dark:bg-orange-950/20"
+                                        className="ml-5 list-item list-disc"
                                       >
                                         <p className="text-sm leading-relaxed">
                                           {challenge}
@@ -337,7 +339,7 @@ export default function ProjectDetails() {
                           {project.solutions &&
                             project.solutions.length > 0 && (
                               <div>
-                                <h4 className="font-semibold text-green-600 dark:text-green-400 mb-3 flex items-center gap-2">
+                                <h4 className="font-semibold text-black dark:text-white mb-3 flex items-center gap-2">
                                   <Lightbulb className="h-4 w-4" />
                                   Solutions Implemented
                                 </h4>
@@ -346,8 +348,7 @@ export default function ProjectDetails() {
                                     (solution: string, index: number) => (
                                       <div
                                         key={index}
-                                        className="p-4 border border-green-200 dark:border-green-800 rounded-lg bg-green-50 dark:bg-green-950/20"
-                                      >
+                                        className="">
                                         <p className="text-sm leading-relaxed">
                                           {solution}
                                         </p>
