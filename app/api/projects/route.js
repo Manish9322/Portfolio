@@ -34,7 +34,9 @@ export async function POST(request) {
   try {
     await _db();
     const data = await request.json();
+    console.log('Creating project with data:', JSON.stringify(data, null, 2));
     const project = await Project.create(data);
+    console.log('Project created successfully:', project._id);
     
     // Log activity
     await logActivity(
@@ -48,7 +50,8 @@ export async function POST(request) {
     
     return NextResponse.json(project);
   } catch (error) {
-    return NextResponse.json({ error: 'Error creating project' }, { status: 500 });
+    console.error('Error creating project:', error);
+    return NextResponse.json({ error: 'Error creating project: ' + error.message }, { status: 500 });
   }
 }
 
@@ -57,12 +60,15 @@ export async function PUT(request) {
     await _db();
     const data = await request.json();
     const { _id, ...rest } = data;
+    console.log('Updating project:', _id, 'with data:', JSON.stringify(rest, null, 2));
 
     const updatedProject = await Project.findByIdAndUpdate(_id, rest, { new: true });
 
     if (!updatedProject) {
       return NextResponse.json({ error: 'Project not found' }, { status: 404 });
     }
+
+    console.log('Project updated successfully:', updatedProject._id);
 
     // Log activity
     await logActivity(
@@ -76,7 +82,8 @@ export async function PUT(request) {
 
     return NextResponse.json(updatedProject);
   } catch (error) {
-    return NextResponse.json({ error: 'Error updating project' }, { status: 500 });
+    console.error('Error updating project:', error);
+    return NextResponse.json({ error: 'Error updating project: ' + error.message }, { status: 500 });
   }
 }
 

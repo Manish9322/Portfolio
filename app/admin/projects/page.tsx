@@ -62,7 +62,6 @@ interface Project {
 
 export default function ProjectsPage() {
   const router = useRouter()
-  const fileInputRef = useRef<HTMLInputElement>(null)
   
   const { data: projects = [], isLoading } = useGetProjectsQuery(undefined)
   const [updateProjectOrder] = useUpdateProjectOrderMutation()
@@ -131,6 +130,28 @@ export default function ProjectsPage() {
   const [activeTab, setActiveTab] = useState("basic");
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
+  const [uploadingScreenshot, setUploadingScreenshot] = useState<number | null>(null)
+
+  // Helper function to validate and normalize image URL
+  const validateImageUrl = (url: string) => {
+    if (!url || url === "/placeholder.svg?height=600&width=800") {
+      return "/placeholder.svg";
+    }
+    // If it's already a gallery URL, return as is
+    if (url.startsWith('/gallery/')) {
+      return url;
+    }
+    // If it's a full URL, return as is
+    if (url.startsWith('http')) {
+      return url;
+    }
+    // If it starts with just the filename, add gallery prefix
+    if (!url.startsWith('/')) {
+      return `/gallery/${url}`;
+    }
+    return url;
+  };
 
   // Update handleEditProject
   const handleEditProject = (project: Project) => {
@@ -140,9 +161,12 @@ export default function ProjectsPage() {
     setFormData({
       ...project,
       imageUrl: project.imageUrl || "/placeholder.svg?height=600&width=800",
-      liveUrl: project.liveUrl,
-      githubUrl: project.githubUrl,
-      tags: project.tags,
+      liveUrl: project.liveUrl || "",
+      githubUrl: project.githubUrl || "",
+      tags: project.tags || [],
+      challenges: project.challenges || [],
+      solutions: project.solutions || [],
+      screenshots: project.screenshots || [],
     });
     setIsDialogOpen(true);
   };
@@ -172,50 +196,71 @@ export default function ProjectsPage() {
   }
 
   const handleImageUpload = () => {
-    fileInputRef.current?.click()
-  }
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = async (e: any) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        try {
+          setIsUploading(true);
+          console.log('Starting main image upload:', file.name);
+          
+          // Create a local URL for immediate preview
+          const previewUrl = URL.createObjectURL(file);
+          setPreviewImage(previewUrl);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      try {
-        // Create a local URL for immediate preview
-        const previewUrl = URL.createObjectURL(file)
-        setPreviewImage(previewUrl)
+          // Upload the file to the server
+          const uploadFormData = new FormData();
+          uploadFormData.append("file", file);
 
-        // Upload the file to the server
-        const formData = new FormData()
-        formData.append("file", file)
+          const uploadResponse = await fetch("/api/upload", {
+            method: "POST",
+            body: uploadFormData,
+          });
 
-        const uploadResponse = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        })
+          if (!uploadResponse.ok) {
+            const errorData = await uploadResponse.text();
+            console.error('Main image upload failed:', errorData);
+            throw new Error("Upload failed: " + errorData);
+          }
+          
+          const uploadData = await uploadResponse.json();
+          console.log('Main image upload successful:', uploadData);
 
-        if (!uploadResponse.ok) throw new Error("Upload failed")
-        const uploadData = await uploadResponse.json()
+          // Update form data with server URL
+          setFormData((prev) => ({
+            ...prev,
+            imageUrl: uploadData.url, // Use server URL
+          }));
 
-        // Update form data with server URL
-        setFormData((prev) => ({
-          ...prev,
-          imageUrl: uploadData.url, // Use server URL
-        }))
-
-        toast({
-          title: "Success",
-          description: "Image uploaded successfully",
-        })
-      } catch (error) {
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Failed to upload image",
-        })
-        // Reset preview on error
-        setPreviewImage(null)
+          toast({
+            title: "Success",
+            description: `Image uploaded successfully: ${uploadData.url}`,
+          });
+          
+          // Clean up the preview URL to avoid memory leaks
+          setTimeout(() => {
+            if (previewUrl) {
+              URL.revokeObjectURL(previewUrl);
+            }
+          }, 1000);
+        } catch (error) {
+          console.error('Main image upload error:', error);
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to upload image: " + (error instanceof Error ? error.message : String(error)),
+          });
+          // Reset preview on error
+          setPreviewImage(null);
+        } finally {
+          setIsUploading(false);
+        }
       }
-    }
-  }
+    };
+    input.click();
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target
@@ -238,22 +283,50 @@ export default function ProjectsPage() {
         challenges: Array.isArray(formData.challenges) ? formData.challenges : [],
         solutions: Array.isArray(formData.solutions) ? formData.solutions : [],
         screenshots: Array.isArray(formData.screenshots) 
-          ? formData.screenshots.filter(s => s.url && s.caption)
+          ? formData.screenshots.filter(s => s.url && s.caption).map(s => ({
+              ...s,
+              url: validateImageUrl(s.url)
+            }))
           : [],
-        imageUrl: formData.imageUrl,
-        liveUrl: formData.liveUrl,
-        githubUrl: formData.githubUrl,
+        imageUrl: validateImageUrl(formData.imageUrl),
+        liveUrl: formData.liveUrl || "",
+        githubUrl: formData.githubUrl || "",
       };
+
+      console.log('Saving project with data:', {
+        title: formattedProject.title,
+        imageUrl: formattedProject.imageUrl,
+        screenshots: formattedProject.screenshots.length,
+        challenges: formattedProject.challenges.length,
+        solutions: formattedProject.solutions.length,
+        tags: formattedProject.tags.length
+      });
 
       if (isEditing && currentProject?._id) {
         await updateProject({ _id: currentProject._id, ...formattedProject }).unwrap();
+        toast({
+          title: "Success",
+          description: "Project updated successfully",
+        });
       } else {
         await addProject(formattedProject).unwrap();
+        toast({
+          title: "Success", 
+          description: "Project created successfully",
+        });
       }
 
       setIsDialogOpen(false);
+      setPreviewImage(null);
+      setIsUploading(false);
+      setUploadingScreenshot(null);
     } catch (error) {
       console.error("Error saving project:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to save project. Please try again.",
+      });
     } finally {
       setIsSaving(false);
     }
@@ -423,7 +496,14 @@ export default function ProjectsPage() {
         ))}
       </div>
 
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog open={isDialogOpen} onOpenChange={(open) => {
+        setIsDialogOpen(open);
+        if (!open) {
+          setPreviewImage(null);
+          setIsUploading(false);
+          setUploadingScreenshot(null);
+        }
+      }}>
         <DialogContent className="sm:max-w-[900px] max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{isEditing ? "Edit Project" : "Add New Project"}</DialogTitle>
@@ -480,16 +560,27 @@ export default function ProjectsPage() {
                         fill
                         className="object-cover"
                       />
+                      {formData.imageUrl && formData.imageUrl !== "/placeholder.svg?height=600&width=800" && !previewImage && (
+                        <div className="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded text-xs">
+                          Current Image
+                        </div>
+                      )}
+                      {previewImage && (
+                        <div className="absolute top-2 left-2 bg-blue-500 text-white px-2 py-1 rounded text-xs">
+                          New Image
+                        </div>
+                      )}
                     </div>
                     <div className="flex gap-2">
                       <Button
                         type="button"
                         variant="outline"
                         onClick={handleImageUpload}
+                        disabled={isUploading}
                         className="flex-1"
                       >
                         <Upload className="mr-2 h-4 w-4" />
-                        Upload Image
+                        {isUploading ? "Uploading..." : "Upload Image"}
                       </Button>
                       <Input
                         id="imageUrl"
@@ -501,13 +592,6 @@ export default function ProjectsPage() {
                       />
                     </div>
                   </div>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    className="hidden"
-                  />
                 </div>
                 <div className="flex items-center space-x-2">
                   <Switch
@@ -629,30 +713,53 @@ export default function ProjectsPage() {
                             setFormData({ ...formData, screenshots: updatedScreenshots })
                           }}
                         />
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={async (e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              const form = new FormData();
-                              form.append("file", file);
-                              const uploadResponse = await fetch("/api/upload", {
-                                method: "POST",
-                                body: form,
-                              });
-                              if (uploadResponse.ok) {
-                                const uploadData = await uploadResponse.json();
-                                const updatedScreenshots = [...(formData.screenshots || [])];
-                                updatedScreenshots[index] = { ...screenshot, url: uploadData.url };
-                                setFormData({ ...formData, screenshots: updatedScreenshots });
-                                toast({ title: "Success", description: "Screenshot uploaded successfully" });
-                              } else {
-                                toast({ variant: "destructive", title: "Error", description: "Failed to upload screenshot" });
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={uploadingScreenshot === index}
+                          onClick={() => {
+                            const input = document.createElement('input');
+                            input.type = 'file';
+                            input.accept = 'image/*';
+                            input.onchange = async (e: any) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                try {
+                                  setUploadingScreenshot(index);
+                                  console.log('Uploading screenshot:', file.name);
+                                  const form = new FormData();
+                                  form.append("file", file);
+                                  const uploadResponse = await fetch("/api/upload", {
+                                    method: "POST",
+                                    body: form,
+                                  });
+                                  if (uploadResponse.ok) {
+                                    const uploadData = await uploadResponse.json();
+                                    console.log('Screenshot upload successful:', uploadData);
+                                    const updatedScreenshots = [...(formData.screenshots || [])];
+                                    updatedScreenshots[index] = { ...screenshot, url: uploadData.url };
+                                    setFormData({ ...formData, screenshots: updatedScreenshots });
+                                    toast({ title: "Success", description: "Screenshot uploaded successfully" });
+                                  } else {
+                                    const errorText = await uploadResponse.text();
+                                    console.error('Screenshot upload failed:', errorText);
+                                    toast({ variant: "destructive", title: "Error", description: "Failed to upload screenshot" });
+                                  }
+                                } catch (error) {
+                                  console.error('Screenshot upload error:', error);
+                                  toast({ variant: "destructive", title: "Error", description: "Failed to upload screenshot" });
+                                } finally {
+                                  setUploadingScreenshot(null);
+                                }
                               }
-                            }
+                            };
+                            input.click();
                           }}
-                        />
+                        >
+                          <Upload className="h-4 w-4 mr-2" />
+                          {uploadingScreenshot === index ? "Uploading..." : "Upload Screenshot"}
+                        </Button>
                       </div>
                       <div className="flex flex-col gap-2">
                         {screenshot.url && (

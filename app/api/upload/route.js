@@ -1,9 +1,14 @@
 import { NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
-import { existsSync } from "fs";
-import path from "path";
+import { v2 as cloudinary } from 'cloudinary';
 import _db from '@/utils/db';
 import Activity from '@/models/Activity.model';
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 // Helper function to create activity log
 const logActivity = async (action, item, details, category = 'gallery', icon = 'Plus') => {
@@ -55,34 +60,49 @@ export async function POST(request) {
 
     // Create unique filename with sanitized original name
     const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e6)}`;
-    const extension = path.extname(file.name);
-    const sanitizedName = sanitizeFilename(path.basename(file.name, extension));
-    const filename = `${uniqueSuffix}-${sanitizedName}${extension}`;
+    const extension = file.name.split('.').pop();
+    const sanitizedName = sanitizeFilename(file.name.replace(`.${extension}`, ''));
+    const filename = `${uniqueSuffix}-${sanitizedName}`;
     
-    // Ensure gallery directory exists
-    const galleryDir = path.join(process.cwd(), "public/gallery");
-    if (!existsSync(galleryDir)) {
-      await mkdir(galleryDir, { recursive: true });
+    try {
+      // Upload to Cloudinary
+      const uploadResult = await new Promise((resolve, reject) => {
+        cloudinary.uploader.upload_stream(
+          {
+            resource_type: "image",
+            public_id: filename,
+            folder: "portfolio/gallery", // This creates a folder structure in Cloudinary
+            format: extension,
+          },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        ).end(buffer);
+      });
+
+      // Log activity
+      await logActivity(
+        'Uploaded file',
+        sanitizedName || 'New File',
+        `Uploaded file "${sanitizedName}" to the gallery`,
+        'gallery',
+        'Plus'
+      );
+      
+      return NextResponse.json({ 
+        message: "File uploaded successfully",
+        url: uploadResult.secure_url,
+        publicId: uploadResult.public_id,
+        name: sanitizedName
+      });
+    } catch (uploadError) {
+      console.error("Error uploading to Cloudinary:", uploadError);
+      return NextResponse.json(
+        { error: "Error uploading file: " + uploadError.message },
+        { status: 500 }
+      );
     }
-    
-    // Save to /public/gallery/
-    const filepath = path.join(galleryDir, filename);
-    await writeFile(filepath, buffer);
-    
-    // Log activity
-    await logActivity(
-      'Uploaded file',
-      sanitizedName || 'New File',
-      `Uploaded file "${sanitizedName}" to the gallery`,
-      'gallery',
-      'Plus'
-    );
-    
-    return NextResponse.json({ 
-      message: "File uploaded successfully",
-      url: `/gallery/${filename}`,
-      name: sanitizedName
-    });
   } catch (error) {
     console.error("Error in uploading file:", error);
     return NextResponse.json(

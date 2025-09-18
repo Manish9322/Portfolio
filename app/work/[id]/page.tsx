@@ -1,72 +1,107 @@
-"use client"
+"use client";
 
-import { useParams } from "next/navigation"
-import Image from "next/image"
-import Link from "next/link"
-import { useState } from "react"
-import { ArrowLeft, Github, Globe, Calendar, Tag, Clock, Users, Target, Lightbulb, Code, Check, Star, Eye, Heart, Share2, BookOpen, ExternalLink, Facebook, Twitter, Linkedin, Mail, Copy } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { useGetProjectQuery } from "@/services/api"
-import { useToast } from "@/hooks/use-toast"
-import Header from "@/components/Header"
-import { FooterSection } from "@/components/home/FooterSection"
+import { useParams } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
+import { useState } from "react";
+import {
+  ArrowLeft,
+  Github,
+  Globe,
+  Calendar,
+  Tag,
+  Clock,
+  Users,
+  Target,
+  Lightbulb,
+  Code,
+  Check,
+  Star,
+  Eye,
+  Heart,
+  Share2,
+  BookOpen,
+  ExternalLink,
+  Facebook,
+  Twitter,
+  Linkedin,
+  Mail,
+  Copy,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useGetProjectQuery } from "@/services/api";
+import { useToast } from "@/hooks/use-toast";
+import Header from "@/components/Header";
+import { FooterSection } from "@/components/home/FooterSection";
 
 export default function ProjectDetails() {
-  const params = useParams()
-  const { toast } = useToast()
-  const { data: project, isLoading, error } = useGetProjectQuery(params.id as string)
-  
+  const params = useParams();
+  const { toast } = useToast();
+  const {
+    data: project,
+    isLoading,
+    error,
+  } = useGetProjectQuery(params.id as string);
+
   // State for interactions
-  const [showShareOptions, setShowShareOptions] = useState(false)
-  const [copied, setCopied] = useState(false)
+  const [showShareOptions, setShowShareOptions] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   // Helper functions
   const copyToClipboard = async () => {
     try {
-      await navigator.clipboard.writeText(window.location.href)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
       toast({
         title: "Copied!",
         description: "Project URL copied to clipboard.",
-      })
+      });
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to copy URL.",
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
   const handleShare = async (platform: string) => {
-    const url = window.location.href
-    const title = project?.title || ''
-    const text = project?.description || ''
+    const url = window.location.href;
+    const title = project?.title || "";
+    const text = project?.description || "";
 
-    let shareUrl = ''
+    let shareUrl = "";
     switch (platform) {
-      case 'facebook':
-        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`
-        break
-      case 'twitter':
-        shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`
-        break
-      case 'linkedin':
-        shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`
-        break
-      case 'email':
-        shareUrl = `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(`${text}\n\n${url}`)}`
-        break
+      case "facebook":
+        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+          url
+        )}`;
+        break;
+      case "twitter":
+        shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(
+          url
+        )}&text=${encodeURIComponent(title)}`;
+        break;
+      case "linkedin":
+        shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
+          url
+        )}`;
+        break;
+      case "email":
+        shareUrl = `mailto:?subject=${encodeURIComponent(
+          title
+        )}&body=${encodeURIComponent(`${text}\n\n${url}`)}`;
+        break;
     }
 
     if (shareUrl) {
-      window.open(shareUrl, '_blank', 'width=600,height=400')
+      window.open(shareUrl, "_blank", "width=600,height=400");
     }
-  }
+  };
 
   if (isLoading) {
     return (
@@ -80,7 +115,7 @@ export default function ProjectDetails() {
         </div>
         <FooterSection />
       </>
-    )
+    );
   }
 
   if (error || !project) {
@@ -90,7 +125,9 @@ export default function ProjectDetails() {
         <div className="min-h-screen bg-background flex items-center justify-center">
           <div className="text-center">
             <h1 className="text-2xl font-bold mb-4">Project Not Found</h1>
-            <p className="text-muted-foreground mb-6">The project you're looking for doesn't exist.</p>
+            <p className="text-muted-foreground mb-6">
+              The project you're looking for doesn't exist.
+            </p>
             <Button asChild>
               <Link href="/work">
                 <ArrowLeft className="mr-2 h-4 w-4" />
@@ -101,7 +138,7 @@ export default function ProjectDetails() {
         </div>
         <FooterSection />
       </>
-    )
+    );
   }
 
   return (
@@ -120,7 +157,7 @@ export default function ProjectDetails() {
                 <p className="text-lg sm:text-xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
                   {project.description}
                 </p>
-                
+
                 {/* Project Meta */}
                 <div className="flex flex-wrap items-center justify-center gap-6 text-muted-foreground mb-8">
                   <div className="flex items-center gap-3">
@@ -130,31 +167,39 @@ export default function ProjectDetails() {
                       </AvatarFallback>
                     </Avatar>
                     <div className="text-left">
-                      <p className="font-medium text-foreground">{project.role || "Full Stack Developer"}</p>
-                      <p className="text-sm text-muted-foreground">Project Role</p>
+                      <p className="font-medium text-foreground">
+                        {project.role || "Full Stack Developer"}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Project Role
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4" />
-                    <span>{project.duration || "3-6 months"}</span>
+                    <span>{project.timeline || "3-6 months"}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Users className="h-4 w-4" />
-                    <span>{project.teamSize || "2-4 members"}</span>
+                    <span>{project.team || "Solo project"}</span>
                   </div>
                 </div>
               </div>
 
               {/* Featured Image */}
-              {project.imageUrl && (
+              {project.imageUrl && project.imageUrl !== "/placeholder.svg" && (
                 <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-card border">
                   <div className="aspect-[16/9] relative">
-                    <Image 
-                      src={project.imageUrl} 
-                      alt={project.title} 
-                      fill 
-                      className="object-cover" 
+                    <Image
+                      src={project.imageUrl}
+                      alt={project.title}
+                      fill
+                      className="object-cover"
                       priority
+                      onError={(e) => {
+                        console.error('Error loading project image:', project.imageUrl);
+                        e.currentTarget.src = '/placeholder.svg';
+                      }}
                     />
                   </div>
                 </div>
@@ -173,7 +218,7 @@ export default function ProjectDetails() {
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                     <div className="text-center">
                       <div className="text-2xl font-bold text-primary mb-1">
-                        {project.technologies?.length || 0}
+                        {project.tags?.length || 0}
                       </div>
                       <div className="text-sm text-muted-foreground flex items-center justify-center gap-1">
                         <Code className="h-4 w-4" />
@@ -182,16 +227,17 @@ export default function ProjectDetails() {
                     </div>
                     <div className="text-center">
                       <div className="text-2xl font-bold text-primary mb-1">
-                        {project.features?.length || 0}
+                        {(project.challenges?.length || 0) +
+                          (project.solutions?.length || 0)}
                       </div>
                       <div className="text-sm text-muted-foreground flex items-center justify-center gap-1">
-                        <Star className="h-4 w-4" />
-                        Features
+                        <Target className="h-4 w-4" />
+                        Challenges & Solutions
                       </div>
                     </div>
                     <div className="text-center">
                       <div className="text-2xl font-bold text-primary mb-1">
-                        {project.teamSize || "3"}
+                        {project.team || "Solo"}
                       </div>
                       <div className="text-sm text-muted-foreground flex items-center justify-center gap-1">
                         <Users className="h-4 w-4" />
@@ -200,11 +246,11 @@ export default function ProjectDetails() {
                     </div>
                     <div className="text-center">
                       <div className="text-2xl font-bold text-primary mb-1">
-                        {project.duration || "6"}
+                        {project.timeline || "3-6"}
                       </div>
                       <div className="text-sm text-muted-foreground flex items-center justify-center gap-1">
                         <Clock className="h-4 w-4" />
-                        Months
+                        Timeline
                       </div>
                     </div>
                   </div>
@@ -214,13 +260,17 @@ export default function ProjectDetails() {
               <div className="grid lg:grid-cols-4 gap-8">
                 {/* Main Content */}
                 <div className="lg:col-span-3">
-                  {/* Categories */}
-                  {project.categories && project.categories.length > 0 && (
+                  {/* Tags */}
+                  {project.tags && project.tags.length > 0 && (
                     <div className="flex flex-wrap gap-2 mb-8">
-                      {project.categories.map((category: string, index: number) => (
-                        <Badge key={index} variant="secondary" className="text-xs px-2 py-0.5 hover:bg-primary hover:text-primary-foreground transition-colors cursor-pointer">
+                      {project.tags.map((tag: string, index: number) => (
+                        <Badge
+                          key={index}
+                          variant="secondary"
+                          className="text-xs px-2 py-0.5 hover:bg-primary hover:text-primary-foreground transition-colors cursor-pointer"
+                        >
                           <Tag className="h-3 w-3 mr-1" />
-                          {category}
+                          {tag}
                         </Badge>
                       ))}
                     </div>
@@ -238,58 +288,19 @@ export default function ProjectDetails() {
                       <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-bold prose-headings:text-foreground prose-p:text-muted-foreground prose-p:leading-relaxed prose-a:text-primary hover:prose-a:text-primary/80 prose-strong:text-foreground prose-ul:text-muted-foreground prose-ol:text-muted-foreground prose-blockquote:border-primary prose-blockquote:text-muted-foreground prose-code:text-primary prose-pre:bg-muted">
                         <p>{project.description}</p>
                         {project.longDescription && (
-                          <div dangerouslySetInnerHTML={{ __html: project.longDescription }} />
+                          <div
+                            dangerouslySetInnerHTML={{
+                              __html: project.longDescription,
+                            }}
+                          />
                         )}
                       </div>
                     </CardContent>
                   </Card>
 
-                  {/* Technologies Used */}
-                  {project.technologies && project.technologies.length > 0 && (
-                    <Card className="mb-8">
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <Code className="h-5 w-5" />
-                          Technologies Used
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                          {project.technologies.map((tech: string, index: number) => (
-                            <div key={index} className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
-                              <div className="w-2 h-2 rounded-full bg-primary"></div>
-                              <span className="text-sm font-medium">{tech}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
-
-                  {/* Key Features */}
-                  {project.features && project.features.length > 0 && (
-                    <Card className="mb-8">
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <Lightbulb className="h-5 w-5" />
-                          Key Features
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="grid gap-4">
-                          {project.features.map((feature: string, index: number) => (
-                            <div key={index} className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
-                              <div className="w-2 h-2 rounded-full bg-green-500 mt-2 flex-shrink-0"></div>
-                              <p className="text-sm leading-relaxed">{feature}</p>
-                            </div>
-                          ))}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
-
                   {/* Challenges & Solutions */}
-                  {project.challenges && project.challenges.length > 0 && (
+                  {((project.challenges && project.challenges.length > 0) ||
+                    (project.solutions && project.solutions.length > 0)) && (
                     <Card className="mb-8">
                       <CardHeader>
                         <CardTitle className="flex items-center gap-2">
@@ -298,23 +309,102 @@ export default function ProjectDetails() {
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <div className="space-y-4">
-                          {project.challenges.map((challenge: any, index: number) => (
-                            <div key={index} className="p-4 border border-orange-200 dark:border-orange-800 rounded-lg">
-                              <h4 className="font-semibold text-orange-600 dark:text-orange-400 mb-2">
-                                Challenge: {challenge.problem}
-                              </h4>
-                              <p className="text-sm text-muted-foreground">
-                                Solution: {challenge.solution}
-                              </p>
-                            </div>
-                          ))}
+                        <div className="space-y-6">
+                          {project.challenges &&
+                            project.challenges.length > 0 && (
+                              <div>
+                                <h4 className="font-semibold text-orange-600 dark:text-orange-400 mb-3 flex items-center gap-2">
+                                  <Target className="h-4 w-4" />
+                                  Challenges Faced
+                                </h4>
+                                <div className="space-y-3">
+                                  {project.challenges.map(
+                                    (challenge: string, index: number) => (
+                                      <div
+                                        key={index}
+                                        className="p-4 border border-orange-200 dark:border-orange-800 rounded-lg bg-orange-50 dark:bg-orange-950/20"
+                                      >
+                                        <p className="text-sm leading-relaxed">
+                                          {challenge}
+                                        </p>
+                                      </div>
+                                    )
+                                  )}
+                                </div>
+                              </div>
+                            )}
+
+                          {project.solutions &&
+                            project.solutions.length > 0 && (
+                              <div>
+                                <h4 className="font-semibold text-green-600 dark:text-green-400 mb-3 flex items-center gap-2">
+                                  <Lightbulb className="h-4 w-4" />
+                                  Solutions Implemented
+                                </h4>
+                                <div className="space-y-3">
+                                  {project.solutions.map(
+                                    (solution: string, index: number) => (
+                                      <div
+                                        key={index}
+                                        className="p-4 border border-green-200 dark:border-green-800 rounded-lg bg-green-50 dark:bg-green-950/20"
+                                      >
+                                        <p className="text-sm leading-relaxed">
+                                          {solution}
+                                        </p>
+                                      </div>
+                                    )
+                                  )}
+                                </div>
+                              </div>
+                            )}
                         </div>
                       </CardContent>
                     </Card>
                   )}
 
-                  {/* Project Gallery */}
+                  {/* Project Screenshots */}
+                  {project.screenshots && project.screenshots.length > 0 && (
+                    <Card className="mb-8">
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Eye className="h-5 w-5" />
+                          Project Screenshots
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid sm:grid-cols-2 gap-4">
+                          {project.screenshots.map(
+                            (screenshot: any, index: number) => (
+                              <div key={index} className="space-y-2">
+                                <div className="aspect-video relative rounded-lg overflow-hidden border">
+                                  <Image
+                                    src={screenshot.url || "/placeholder.svg"}
+                                    alt={
+                                      screenshot.caption ||
+                                      `${project.title} screenshot ${index + 1}`
+                                    }
+                                    fill
+                                    className="object-cover hover:scale-105 transition-transform duration-300"
+                                    onError={(e) => {
+                                      console.error('Error loading screenshot:', screenshot.url);
+                                      e.currentTarget.src = '/placeholder.svg';
+                                    }}
+                                  />
+                                </div>
+                                {screenshot.caption && (
+                                  <p className="text-sm text-muted-foreground text-center">
+                                    {screenshot.caption}
+                                  </p>
+                                )}
+                              </div>
+                            )
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Project Gallery (if exists) */}
                   {project.gallery && project.gallery.length > 0 && (
                     <Card className="mb-8">
                       <CardHeader>
@@ -325,16 +415,23 @@ export default function ProjectDetails() {
                       </CardHeader>
                       <CardContent>
                         <div className="grid sm:grid-cols-2 gap-4">
-                          {project.gallery.map((image: string, index: number) => (
-                            <div key={index} className="aspect-video relative rounded-lg overflow-hidden">
-                              <Image
-                                src={image}
-                                alt={`${project.title} screenshot ${index + 1}`}
-                                fill
-                                className="object-cover hover:scale-105 transition-transform duration-300"
-                              />
-                            </div>
-                          ))}
+                          {project.gallery.map(
+                            (image: string, index: number) => (
+                              <div
+                                key={index}
+                                className="aspect-video relative rounded-lg overflow-hidden"
+                              >
+                                <Image
+                                  src={image}
+                                  alt={`${project.title} gallery image ${
+                                    index + 1
+                                  }`}
+                                  fill
+                                  className="object-cover hover:scale-105 transition-transform duration-300"
+                                />
+                              </div>
+                            )
+                          )}
                         </div>
                       </CardContent>
                     </Card>
@@ -347,15 +444,28 @@ export default function ProjectDetails() {
                         <div className="flex items-center gap-4">
                           {project.liveUrl && (
                             <Button asChild size="sm" className="gap-2">
-                              <Link href={project.liveUrl} target="_blank" rel="noopener noreferrer">
+                              <Link
+                                href={project.liveUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
                                 <Globe className="h-4 w-4" />
                                 Live Demo
                               </Link>
                             </Button>
                           )}
                           {project.githubUrl && (
-                            <Button asChild variant="outline" size="sm" className="gap-2">
-                              <Link href={project.githubUrl} target="_blank" rel="noopener noreferrer">
+                            <Button
+                              asChild
+                              variant="outline"
+                              size="sm"
+                              className="gap-2"
+                            >
+                              <Link
+                                href={project.githubUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
                                 <Github className="h-4 w-4" />
                                 Source Code
                               </Link>
@@ -363,10 +473,12 @@ export default function ProjectDetails() {
                           )}
                         </div>
                         <div className="flex items-center gap-2">
-                          <Button 
-                            onClick={() => setShowShareOptions(!showShareOptions)}
-                            variant="outline" 
-                            size="sm" 
+                          <Button
+                            onClick={() =>
+                              setShowShareOptions(!showShareOptions)
+                            }
+                            variant="outline"
+                            size="sm"
                             className="gap-2"
                           >
                             <Share2 className="h-4 w-4" />
@@ -375,7 +487,7 @@ export default function ProjectDetails() {
                           {showShareOptions && (
                             <div className="flex items-center gap-1 ml-2">
                               <Button
-                                onClick={() => handleShare('facebook')}
+                                onClick={() => handleShare("facebook")}
                                 size="sm"
                                 variant="ghost"
                                 className="h-8 w-8 p-0"
@@ -383,7 +495,7 @@ export default function ProjectDetails() {
                                 <Facebook className="h-4 w-4" />
                               </Button>
                               <Button
-                                onClick={() => handleShare('twitter')}
+                                onClick={() => handleShare("twitter")}
                                 size="sm"
                                 variant="ghost"
                                 className="h-8 w-8 p-0"
@@ -391,7 +503,7 @@ export default function ProjectDetails() {
                                 <Twitter className="h-4 w-4" />
                               </Button>
                               <Button
-                                onClick={() => handleShare('linkedin')}
+                                onClick={() => handleShare("linkedin")}
                                 size="sm"
                                 variant="ghost"
                                 className="h-8 w-8 p-0"
@@ -399,7 +511,7 @@ export default function ProjectDetails() {
                                 <Linkedin className="h-4 w-4" />
                               </Button>
                               <Button
-                                onClick={() => handleShare('email')}
+                                onClick={() => handleShare("email")}
                                 size="sm"
                                 variant="ghost"
                                 className="h-8 w-8 p-0"
@@ -412,7 +524,11 @@ export default function ProjectDetails() {
                                 variant="ghost"
                                 className="h-8 w-8 p-0"
                               >
-                                {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                                {copied ? (
+                                  <Check className="h-4 w-4" />
+                                ) : (
+                                  <Copy className="h-4 w-4" />
+                                )}
                               </Button>
                             </div>
                           )}
@@ -424,88 +540,41 @@ export default function ProjectDetails() {
 
                 {/* Sidebar */}
                 <div className="lg:sticky lg:top-6 lg:h-fit">
-                  {/* Project Categories */}
-                  {project.categories && project.categories.length > 0 && (
-                    <Card className="mb-6">
-                      <CardHeader>
-                        <CardTitle className="text-lg flex items-center gap-2">
-                          <Tag className="h-5 w-5 text-primary" />
-                          Project Categories
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-3">
-                          <p className="text-sm text-muted-foreground mb-4">
-                            Categories this project belongs to
-                          </p>
-                          <div className="flex flex-wrap gap-2">
-                            {project.categories.map((category: string, index: number) => (
-                              <Badge key={index} variant="outline" className="text-xs px-2 py-1">
-                                {category}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
-
-                  {/* Project Info */}
-                  <Card className="mb-6">
-                    <CardHeader>
-                      <CardTitle className="text-lg">Project Details</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="flex items-center gap-3">
-                        <Clock className="h-4 w-4 text-muted-foreground" />
-                        <div>
-                          <p className="text-sm font-medium">Duration</p>
-                          <p className="text-sm text-muted-foreground">{project.duration || "3-6 months"}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <Users className="h-4 w-4 text-muted-foreground" />
-                        <div>
-                          <p className="text-sm font-medium">Team Size</p>
-                          <p className="text-sm text-muted-foreground">{project.teamSize || "2-4 members"}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <Code className="h-4 w-4 text-muted-foreground" />
-                        <div>
-                          <p className="text-sm font-medium">Role</p>
-                          <p className="text-sm text-muted-foreground">{project.role || "Full Stack Developer"}</p>
-                        </div>
-                      </div>
-                      {project.client && (
-                        <div className="flex items-center gap-3">
-                          <Users className="h-4 w-4 text-muted-foreground" />
-                          <div>
-                            <p className="text-sm font-medium">Client</p>
-                            <p className="text-sm text-muted-foreground">{project.client}</p>
-                          </div>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-
                   {/* Quick Actions */}
-                  <Card className="mb-6">
+                  <Card className="mb-6 mt-20">
                     <CardHeader>
                       <CardTitle className="text-lg">Quick Actions</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
                       {project.liveUrl && (
-                        <Button variant="outline" size="sm" className="w-full justify-start gap-2" asChild>
-                          <Link href={project.liveUrl} target="_blank" rel="noopener noreferrer">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full justify-start gap-2"
+                          asChild
+                        >
+                          <Link
+                            href={project.liveUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
                             <Globe className="h-4 w-4" />
                             View Live Demo
                           </Link>
                         </Button>
                       )}
                       {project.githubUrl && (
-                        <Button variant="outline" size="sm" className="w-full justify-start gap-2" asChild>
-                          <Link href={project.githubUrl} target="_blank" rel="noopener noreferrer">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full justify-start gap-2"
+                          asChild
+                        >
+                          <Link
+                            href={project.githubUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
                             <Github className="h-4 w-4" />
                             Source Code
                           </Link>
@@ -518,7 +587,7 @@ export default function ProjectDetails() {
                         </h5>
                         <div className="flex gap-2">
                           <Button
-                            onClick={() => handleShare('facebook')}
+                            onClick={() => handleShare("facebook")}
                             size="sm"
                             variant="outline"
                             className="h-8 w-8 p-0"
@@ -526,7 +595,7 @@ export default function ProjectDetails() {
                             <Facebook className="h-4 w-4" />
                           </Button>
                           <Button
-                            onClick={() => handleShare('twitter')}
+                            onClick={() => handleShare("twitter")}
                             size="sm"
                             variant="outline"
                             className="h-8 w-8 p-0"
@@ -534,7 +603,7 @@ export default function ProjectDetails() {
                             <Twitter className="h-4 w-4" />
                           </Button>
                           <Button
-                            onClick={() => handleShare('linkedin')}
+                            onClick={() => handleShare("linkedin")}
                             size="sm"
                             variant="outline"
                             className="h-8 w-8 p-0"
@@ -547,39 +616,83 @@ export default function ProjectDetails() {
                             variant="outline"
                             className="h-8 w-8 p-0"
                           >
-                            {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                            {copied ? (
+                              <Check className="h-4 w-4" />
+                            ) : (
+                              <Copy className="h-4 w-4" />
+                            )}
                           </Button>
                         </div>
                       </div>
                     </CardContent>
                   </Card>
 
-                  {/* Technologies Summary */}
-                  {project.technologies && project.technologies.length > 0 && (
-                    <Card>
+                  {/* Project Info */}
+                  <Card className="mb-6">
+                    <CardHeader>
+                      <CardTitle className="text-lg">Project Details</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex items-center gap-3">
+                        <Clock className="h-4 w-4 text-muted-foreground" />
+                        <div>
+                          <p className="text-sm font-medium">Timeline</p>
+                          <p className="text-sm text-muted-foreground">
+                            {project.timeline || "3-6 months"}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Users className="h-4 w-4 text-muted-foreground" />
+                        <div>
+                          <p className="text-sm font-medium">Team Size</p>
+                          <p className="text-sm text-muted-foreground">
+                            {project.team || "Solo project"}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Code className="h-4 w-4 text-muted-foreground" />
+                        <div>
+                          <p className="text-sm font-medium">Role</p>
+                          <p className="text-sm text-muted-foreground">
+                            {project.role || "Full Stack Developer"}
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Project Tags */}
+                  {project.tags && project.tags.length > 0 && (
+                    <Card className="mb-6">
                       <CardHeader>
                         <CardTitle className="text-lg flex items-center gap-2">
-                          <Code className="h-5 w-5 text-primary" />
-                          Tech Stack
+                          <Tag className="h-5 w-5 text-primary" />
+                          Technologies
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <div className="space-y-2">
-                          {project.technologies.slice(0, 6).map((tech: string, index: number) => (
-                            <div key={index} className="flex items-center gap-2 text-sm">
-                              <div className="w-2 h-2 rounded-full bg-primary"></div>
-                              <span>{tech}</span>
-                            </div>
-                          ))}
-                          {project.technologies.length > 6 && (
-                            <p className="text-xs text-muted-foreground mt-2">
-                              +{project.technologies.length - 6} more technologies
-                            </p>
-                          )}
+                        <div className="space-y-3">
+                          <p className="text-sm text-muted-foreground mb-4">
+                            Technologies used in this project
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            {project.tags.map((tag: string, index: number) => (
+                              <Badge
+                                key={index}
+                                variant="outline"
+                                className="text-xs px-2 py-1"
+                              >
+                                {tag}
+                              </Badge>
+                            ))}
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
                   )}
+
                 </div>
               </div>
             </div>
@@ -588,5 +701,5 @@ export default function ProjectDetails() {
       </div>
       <FooterSection />
     </>
-  )
+  );
 }
