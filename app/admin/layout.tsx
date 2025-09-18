@@ -3,6 +3,7 @@
 import type React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useState } from "react"
 import { 
   LayoutDashboard, 
   BookOpen, 
@@ -18,7 +19,8 @@ import {
   Moon,
   ImageIcon,
   MessageCircle,
-  BarChart3
+  BarChart3,
+  LogOut
 } from "lucide-react"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import { 
@@ -32,6 +34,19 @@ import {
   SidebarInset
 } from "@/components/ui/sidebar"
 import { ThemeProvider } from "@/components/theme-provider"
+import { AdminAuthProvider, useAdminAuth } from "@/lib/admin-auth"
+import { AdminPrivateRoute } from "@/components/AdminPrivateRoute"
+import { Button } from "@/components/ui/button"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 const sidebarNavItems = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -49,20 +64,23 @@ const sidebarNavItems = [
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ]
 
-export default function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  
+  const { logout } = useAdminAuth()
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false)
+
+  const handleLogout = () => {
+    logout()
+    window.location.href = "/admin/auth/login"
+  }
+
   // Don't show sidebar on login page
   if (pathname.includes("/admin/auth/")) {
-    return <ThemeProvider attribute="class" defaultTheme="system" enableSystem>{children}</ThemeProvider>
+    return <>{children}</>
   }
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+    <AdminPrivateRoute>
       <SidebarProvider>
         <div className="group/sidebar-wrapper flex min-h-svh w-full">
           <Sidebar>
@@ -90,6 +108,17 @@ export default function AdminLayout({
                 <SidebarMenuItem>
                   <ThemeToggle />
                 </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowLogoutDialog(true)}
+                    className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Logout
+                  </Button>
+                </SidebarMenuItem>
               </SidebarMenu>
             </SidebarContent>
           </Sidebar>
@@ -99,7 +128,38 @@ export default function AdminLayout({
             </div>
           </SidebarInset>
         </div>
+
+        <AlertDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Confirm Logout</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to logout? You will need to login again to access the admin panel.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleLogout} className="bg-black hover:bg-black/80 transition duration-500">
+                Logout
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </SidebarProvider>
+    </AdminPrivateRoute>
+  )
+}
+
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <AdminAuthProvider>
+        <AdminLayoutContent>{children}</AdminLayoutContent>
+      </AdminAuthProvider>
     </ThemeProvider>
   )
 }

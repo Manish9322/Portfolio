@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -9,13 +9,36 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Eye, EyeOff } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
+import { useAdminAuth } from "@/lib/admin-auth"
 
 export default function LoginPage() {
   const router = useRouter()
+  const { login, isAuthenticated, isLoading } = useAdminAuth()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [showPassword, setShowPassword] = useState(false)
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      router.push("/admin/dashboard")
+    }
+  }, [isAuthenticated, isLoading, router])
+
+  // Show loading while checking authentication
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-muted/40 p-4">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    )
+  }
+
+  // Don't render login form if already authenticated
+  if (isAuthenticated) {
+    return null
+  }
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
@@ -30,7 +53,9 @@ export default function LoginPage() {
       return
     }
 
-    if (email === "admin@portfolio.com" && password === "passwordofportfolio") {
+    const isAuth = login(email, password)
+    
+    if (isAuth) {
       toast({
         title: "Login Successful!",
         description: "Welcome back! Redirecting to admin dashboard.",
