@@ -3,7 +3,7 @@
 import { useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
-import { ArrowLeft, Plus, Edit, Trash, X, Globe, Github, Upload, GripVertical } from "lucide-react"
+import { ArrowLeft, Plus, Edit, Trash, X, Globe, Github, Upload, GripVertical, Grid3X3, List } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useEffect } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -24,6 +24,14 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import {
   useGetProjectsQuery,
   useAddProjectMutation,
@@ -132,6 +140,7 @@ export default function ProjectsPage() {
   const [isSaving, setIsSaving] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [uploadingScreenshot, setUploadingScreenshot] = useState<number | null>(null)
+  const [viewMode, setViewMode] = useState<'card' | 'list'>('card')
 
   // Helper function to validate and normalize image URL
   const validateImageUrl = (url: string) => {
@@ -360,6 +369,208 @@ export default function ProjectsPage() {
     router.back()
   }
 
+  const renderListView = () => (
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-8"></TableHead>
+            <TableHead className="w-20">Image</TableHead>
+            <TableHead>Title</TableHead>
+            <TableHead>Description</TableHead>
+            <TableHead>Tags</TableHead>
+            <TableHead>Links</TableHead>
+            <TableHead>Featured</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {orderedProjects.map((project: Project, idx: number) => (
+            <TableRow
+              key={project._id}
+              draggable
+              onDragStart={(e) => handleDragStart(e, idx)}
+              onDragEnter={() => handleDragEnter(idx)}
+              onDragEnd={handleDragEnd}
+              className="cursor-move hover:bg-muted/50"
+            >
+              <TableCell>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="cursor-grab h-6 w-6"
+                >
+                  <GripVertical className="h-4 w-4" />
+                  <span className="sr-only">Drag to reorder</span>
+                </Button>
+              </TableCell>
+              <TableCell>
+                <div className="relative w-16 h-12 rounded overflow-hidden">
+                  <Image 
+                    src={project.imageUrl || "/placeholder.svg"} 
+                    alt={project.title} 
+                    fill 
+                    className="object-cover" 
+                  />
+                </div>
+              </TableCell>
+              <TableCell className="font-medium">
+                <div className="flex items-center gap-2">
+                  {project.title}
+                  {project.featured && (
+                    <span className="inline-flex items-center rounded-full bg-primary px-2 py-1 text-xs font-medium text-primary-foreground">
+                      Featured
+                    </span>
+                  )}
+                </div>
+              </TableCell>
+              <TableCell className="max-w-xs">
+                <p className="truncate text-sm text-muted-foreground">
+                  {project.description}
+                </p>
+              </TableCell>
+              <TableCell>
+                <div className="flex flex-wrap gap-1">
+                  {project.tags.slice(0, 2).map((tag: string, index: number) => (
+                    <span
+                      key={index}
+                      className="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                  {project.tags.length > 2 && (
+                    <span className="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold">
+                      +{project.tags.length - 2}
+                    </span>
+                  )}
+                </div>
+              </TableCell>
+              <TableCell>
+                <div className="flex gap-2">
+                  {project.liveUrl && (
+                    <Button variant="outline" size="icon" className="h-6 w-6" asChild>
+                      <a href={project.liveUrl} target="_blank" rel="noopener noreferrer">
+                        <Globe className="h-3 w-3" />
+                        <span className="sr-only">Live site</span>
+                      </a>
+                    </Button>
+                  )}
+                  {project.githubUrl && (
+                    <Button variant="outline" size="icon" className="h-6 w-6" asChild>
+                      <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
+                        <Github className="h-3 w-3" />
+                        <span className="sr-only">GitHub</span>
+                      </a>
+                    </Button>
+                  )}
+                </div>
+              </TableCell>
+              <TableCell>
+                <Switch
+                  checked={project.featured}
+                  onCheckedChange={() => handleToggleFeatured(project)}
+                />
+              </TableCell>
+              <TableCell className="text-right">
+                <div className="flex items-center gap-2 justify-end">
+                  <Button variant="outline" size="sm" onClick={() => handleEditProject(project)}>
+                    <Edit className="h-4 w-4" />
+                    <span className="sr-only">Edit</span>
+                  </Button>
+                  <Button 
+                    variant="destructive" 
+                    size="sm" 
+                    onClick={() => project._id && handleDeleteProject(project._id)}
+                  >
+                    <Trash className="h-4 w-4" />
+                    <span className="sr-only">Delete</span>
+                  </Button>
+                </div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  )
+
+  const renderCardView = () => (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+      {orderedProjects.map((project: Project, idx: number) => (
+        <Card
+          key={project._id}
+          className="overflow-hidden"
+        >
+          <div className="aspect-video relative">
+            <Image src={project.imageUrl || "/placeholder.svg"} alt={project.title} fill className="object-cover" />
+            {project.featured && (
+              <div className="absolute right-2 top-2 rounded-full bg-primary px-2 py-1 text-xs font-medium text-primary-foreground">
+                Featured
+              </div>
+            )}
+          </div>
+          <CardHeader>
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <CardTitle className="line-clamp-1 mb-2">{project.title}</CardTitle>
+                <div className="flex flex-wrap gap-1">
+                  {project.tags.slice(0, 3).map((tag: string, index: number) => (
+                    <span
+                      key={index}
+                      className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                  {project.tags.length > 3 && (
+                    <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold">
+                      +{project.tags.length - 3} more
+                    </span>
+                  )}
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="cursor-grab ml-2"
+                onDragStart={(e) => handleDragStart(e, idx)}
+                onDragEnter={() => handleDragEnter(idx)}
+                onDragEnd={handleDragEnd}
+                draggable
+              >
+                <GripVertical className="h-4 w-4" />
+                <span className="sr-only">Drag to reorder</span>
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground line-clamp-3">{project.description}</p>
+          </CardContent>
+          <CardFooter className="flex flex-col gap-4">
+            <div className="flex flex-col sm:flex-row w-full items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" onClick={() => handleEditProject(project)}>
+                  Edit
+                </Button>
+                <Button variant="destructive" size="sm" onClick={() => project._id && handleDeleteProject(project._id)}>
+                  Delete
+                </Button>
+              </div>
+              <div className="flex items-center gap-2">
+                <Switch
+                  checked={project.featured}
+                  onCheckedChange={() => handleToggleFeatured(project)}
+                />
+                <Label>Featured</Label>
+              </div>
+            </div>
+          </CardFooter>
+        </Card>
+      ))}
+    </div>
+  )
+
   if (isLoading) {
     return (
       <div className="space-y-6 p-6">
@@ -417,84 +628,34 @@ export default function ProjectsPage() {
           </Button>
           <h1 className="text-2xl font-bold">Manage Projects</h1>
         </div>
-        <Button onClick={handleNewProject}>
-          <Plus className="mr-2 h-4 w-4" /> Add Project
-        </Button>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center border rounded-lg p-1">
+            <Button
+              variant={viewMode === 'card' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('card')}
+              className="h-8 px-3"
+            >
+              <Grid3X3 className="h-4 w-4" />
+              <span className="sr-only">Card view</span>
+            </Button>
+            <Button
+              variant={viewMode === 'list' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('list')}
+              className="h-8 px-3"
+            >
+              <List className="h-4 w-4" />
+              <span className="sr-only">List view</span>
+            </Button>
+          </div>
+          <Button onClick={handleNewProject}>
+            <Plus className="mr-2 h-4 w-4" /> Add Project
+          </Button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-        {orderedProjects.map((project: Project, idx: number) => (
-          <Card
-            key={project._id}
-            className="overflow-hidden"
-          >
-            <div className="aspect-video relative">
-              <Image src={project.imageUrl || "/placeholder.svg"} alt={project.title} fill className="object-cover" />
-              {project.featured && (
-                <div className="absolute right-2 top-2 rounded-full bg-primary px-2 py-1 text-xs font-medium text-primary-foreground">
-                  Featured
-                </div>
-              )}
-            </div>
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <CardTitle className="line-clamp-1 mb-2">{project.title}</CardTitle>
-                  <div className="flex flex-wrap gap-1">
-                    {project.tags.slice(0, 3).map((tag: string, index: number) => (
-                      <span
-                        key={index}
-                        className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                    {project.tags.length > 3 && (
-                      <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold">
-                        +{project.tags.length - 3} more
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="cursor-grab ml-2"
-                  onDragStart={(e) => handleDragStart(e, idx)}
-                  onDragEnter={() => handleDragEnter(idx)}
-                  onDragEnd={handleDragEnd}
-                  draggable
-                >
-                  <GripVertical className="h-4 w-4" />
-                  <span className="sr-only">Drag to reorder</span>
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground line-clamp-3">{project.description}</p>
-            </CardContent>
-            <CardFooter className="flex flex-col gap-4">
-              <div className="flex flex-col sm:flex-row w-full items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" onClick={() => handleEditProject(project)}>
-                    Edit
-                  </Button>
-                  <Button variant="destructive" size="sm" onClick={() => project._id && handleDeleteProject(project._id)}>
-                    Delete
-                  </Button>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Switch
-                    checked={project.featured}
-                    onCheckedChange={() => handleToggleFeatured(project)}
-                  />
-                  <Label>Featured</Label>
-                </div>
-              </div>
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
+      {viewMode === 'card' ? renderCardView() : renderListView()}
 
       <Dialog open={isDialogOpen} onOpenChange={(open) => {
         setIsDialogOpen(open);

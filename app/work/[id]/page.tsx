@@ -199,8 +199,11 @@ export default function ProjectDetails() {
                       className="object-cover"
                       priority
                       onError={(e) => {
-                        console.error('Error loading project image:', project.imageUrl);
-                        e.currentTarget.src = '/placeholder.svg';
+                        console.error(
+                          "Error loading project image:",
+                          project.imageUrl
+                        );
+                        e.currentTarget.src = "/placeholder.svg";
                       }}
                     />
                   </div>
@@ -348,7 +351,8 @@ export default function ProjectDetails() {
                                     (solution: string, index: number) => (
                                       <div
                                         key={index}
-                                        className="">
+                                        className="ml-5 list-item list-disc"
+                                      >
                                         <p className="text-sm leading-relaxed">
                                           {solution}
                                         </p>
@@ -387,8 +391,11 @@ export default function ProjectDetails() {
                                     fill
                                     className="object-cover hover:scale-105 transition-transform duration-300"
                                     onError={(e) => {
-                                      console.error('Error loading screenshot:', screenshot.url);
-                                      e.currentTarget.src = '/placeholder.svg';
+                                      console.error(
+                                        "Error loading screenshot:",
+                                        screenshot.url
+                                      );
+                                      e.currentTarget.src = "/placeholder.svg";
                                     }}
                                   />
                                 </div>
@@ -693,7 +700,6 @@ export default function ProjectDetails() {
                       </CardContent>
                     </Card>
                   )}
-
                 </div>
               </div>
             </div>
