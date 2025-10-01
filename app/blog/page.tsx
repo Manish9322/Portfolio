@@ -120,15 +120,13 @@ export default function BlogsPage() {
       <div className="flex min-h-screen flex-col bg-background">
         <main className="flex-1">
           {/* Hero Section */}
-          <section className="bg-muted/50 py-20">
+          <section className="bg-muted/50 py-16">
             <div className="container mx-auto px-4 text-center">
-              <h1 className="mb-6 text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-                <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                  Blog & Articles
-                </span>
+              <h1 className="mb-6 text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl text-foreground">
+                Blog & Articles
               </h1>
               
-              <p className="mx-auto mb-8 max-w-3xl text-lg sm:text-xl text-muted-foreground">
+              <p className="mx-auto mb-8 max-w-2xl text-base sm:text-lg text-muted-foreground">
                 Discover insights, tutorials, and thoughts on web development, design, and technology
               </p>
 
@@ -148,27 +146,29 @@ export default function BlogsPage() {
           </section>
 
         {/* Blog Grid */}
-        <section className="py-20 bg-background">
+        <section className="py-16 bg-background">
           <div className="container mx-auto px-4 max-w-7xl">
             {/* Latest Blog - Featured (only show when not searching) */}
             {!isLoadingBlogs && showSeparateLatest && latestBlog && (
-              <div className="mb-12">
-                <div className="mb-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="bg-gradient-to-r from-primary to-secondary text-white px-3 py-1 rounded-full text-sm font-medium">
+              <div className="mb-8">
+                <div className="mb-4 text-center">
+                  <div className="flex items-center justify-center gap-3 mb-3">
+                    <div className="bg-primary text-white px-3 py-1 rounded-full text-sm font-medium">
                       Latest
                     </div>
-                    <h2 className="text-2xl sm:text-3xl font-bold">Latest Blog Post</h2>
+                    <h2 className="text-xl sm:text-2xl font-bold">Latest Blog Post</h2>
                   </div>
                 </div>
-                <BlogCard blog={latestBlog} variant="featured" />
+                <div className="max-w-4xl mx-auto">
+                  <BlogCard blog={latestBlog} variant="featured" />
+                </div>
               </div>
             )}
 
             {/* Other Blogs Grid or All Blogs when searching */}
             {!isLoadingBlogs && displayBlogs.length > 0 && (
-              <div className="mb-6">
-                <h3 className="text-xl sm:text-2xl font-bold mb-6">
+              <div className="mb-4">
+                <h3 className="text-lg sm:text-xl font-bold mb-4">
                   {searchQuery ? `Search Results (${displayBlogs.length})` : "More Articles"}
                 </h3>
               </div>
@@ -176,8 +176,8 @@ export default function BlogsPage() {
 
             {/* No results message */}
             {!isLoadingBlogs && searchQuery && displayBlogs.length === 0 && (
-              <div className="text-center py-12">
-                <h3 className="text-xl font-semibold mb-2">No blogs found</h3>
+              <div className="text-center py-8">
+                <h3 className="text-lg font-semibold mb-2">No blogs found</h3>
                 <p className="text-muted-foreground">
                   We couldn't find any blogs matching "{searchQuery}". Try different keywords or{" "}
                   <button 
@@ -190,7 +190,7 @@ export default function BlogsPage() {
               </div>
             )}
 
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-12">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
               {isLoadingBlogs
                 ? [...Array(6)].map((_, i) => (
                     <div key={i} className="space-y-4">

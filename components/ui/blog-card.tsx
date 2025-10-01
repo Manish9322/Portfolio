@@ -35,8 +35,8 @@ export function BlogCard({ blog, variant = "default" }: BlogCardProps) {
     return (
       <Link href={`/blog/${blog._id}`} className="block">
         <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-primary/5 to-secondary/5 border border-primary/20 group">
-          {/* Enhanced Image */}
-          <div className="relative aspect-[16/9] overflow-hidden">
+          {/* Enhanced Image - Made smaller */}
+          <div className="relative aspect-[2/1] overflow-hidden">
             <Image
               src={blog.imageUrl}
               alt={blog.title}
@@ -47,14 +47,14 @@ export function BlogCard({ blog, variant = "default" }: BlogCardProps) {
             />
           </div>
 
-          <CardContent className="p-6">
+          <CardContent className="p-4">
             {/* Tags */}
-            <div className="flex flex-wrap items-center gap-2 mb-4">
-              {blog.tags.slice(0, 3).map((tag, index) => (
+            <div className="flex flex-wrap items-center gap-2 mb-3">
+              {blog.tags.slice(0, 2).map((tag, index) => (
                 <Badge 
                   key={tag} 
                   variant="secondary" 
-                  className={`text-sm ${
+                  className={`text-xs ${
                     index === 0 ? 'bg-primary/10 text-primary border-primary/30' :
                     'bg-muted'
                   }`}
@@ -65,26 +65,26 @@ export function BlogCard({ blog, variant = "default" }: BlogCardProps) {
             </div>
 
             {/* Title */}
-            <h2 className="text-xl sm:text-2xl font-bold mb-3 line-clamp-2">
+            <h2 className="text-lg sm:text-xl font-bold mb-2 line-clamp-2">
               {blog.title}
             </h2>
 
             {/* Description */}
-            <p className="text-muted-foreground mb-4 line-clamp-2 leading-relaxed">
+            <p className="text-muted-foreground mb-3 line-clamp-2 leading-relaxed text-sm">
               {blog.description}
             </p>
 
             {/* Author and Meta Info */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-3 border-t border-border/50">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pt-2 border-t border-border/50">
               <div className="flex items-center gap-2">
                 <Image
                   src={blog.author.avatar}
                   alt={blog.author.name}
-                  width={32}
-                  height={32}
+                  width={28}
+                  height={28}
                   className="rounded-full"
                 />
-                <span className="text-sm font-medium">{blog.author.name}</span>
+                <span className="text-xs font-medium">{blog.author.name}</span>
               </div>
               
               <div className="flex items-center gap-3 text-xs text-muted-foreground">
