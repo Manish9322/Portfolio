@@ -429,15 +429,25 @@ export function HeroSection() {
 
                 {/* Resume Download */}
                 {profileData?.resumeUrl && (
-                  <a href={profileData.resumeUrl} download>
-                    <Button
-                      size="lg"
-                      className="bg-gray-900 hover:text-gray-900 hover:border hover:bg-white/90 backdrop-blur-sm text-white transition-all duration-300 shadow-lg hover:shadow-gray-900/20 dark:bg-transparent dark:border-white dark:border dark:hover:bg-white/10 dark:hover:backdrop-blur-sm dark:hover:text-white group"
-                    >
-                      Download Resume
-                      <Download className="ml-2 h-4 w-4 group-hover:translate-y-1 transition-transform" />
-                    </Button>
-                  </a>
+                  <Button
+                    size="lg"
+                    className="bg-gray-900 hover:text-gray-900 hover:border hover:bg-white/90 backdrop-blur-sm text-white transition-all duration-300 shadow-lg hover:shadow-gray-900/20 dark:bg-transparent dark:border-white dark:border dark:hover:bg-white/10 dark:hover:backdrop-blur-sm dark:hover:text-white group"
+                    onClick={() => {
+                      // Download the resume
+                      const link = document.createElement('a');
+                      link.href = profileData.resumeUrl;
+                      link.download = `${profileData.name}_Resume.pdf`;
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                      
+                      // Open resume in new tab
+                      window.open(profileData.resumeUrl, '_blank');
+                    }}
+                  >
+                    Download Resume
+                    <Download className="ml-2 h-4 w-4 group-hover:translate-y-1 transition-transform" />
+                  </Button>
                 )}
               </div>
             </div>

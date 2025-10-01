@@ -2,6 +2,14 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useGetFeedbacksQuery } from "@/services/api";
 
+/**
+ * TestimonialSection Component
+ * 
+ * This component displays client feedback and testimonials on the main page.
+ * It dynamically fetches approved and visible feedback from the database using the admin panel.
+ * If no database feedback is available or API fails, it falls back to hardcoded testimonials.
+ */
+
 // Fallback testimonials in case API fails or no data
 const fallbackTestimonials = [
   {
@@ -58,11 +66,28 @@ function TestimonialCard({
   feedback,
   name,
   role,
+  rating,
+  company,
 }: {
   feedback: string;
   name: string;
   role: string;
+  rating?: number;
+  company?: string;
 }) {
+  const renderStars = (rating: number) => {
+    return Array.from({ length: 5 }, (_, i) => (
+      <span
+        key={i}
+        className={`text-xs ${
+          i < rating ? "text-yellow-400" : "text-gray-300"
+        }`}
+      >
+        ★
+      </span>
+    ));
+  };
+
   return (
     <Card className="flex-shrink-0 w-[380px] sm:w-96 mx-2 sm:mx-3 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 bg-card border-border">
       <CardContent className="p-5 sm:p-7">
@@ -75,7 +100,9 @@ function TestimonialCard({
           <div className="mt-4 sm:mt-6 pt-4 border-t border-border">
             <div>
               <p className="font-semibold text-foreground text-sm">{name}</p>
-              <p className="text-xs text-muted-foreground">{role}</p>
+              <p className="text-xs text-muted-foreground">
+                {role}{company ? ` at ${company}` : ''}
+              </p>
             </div>
           </div>
         </div>
@@ -87,20 +114,21 @@ function TestimonialCard({
 const TestimonialSection = () => {
   // Fetch approved and visible feedbacks from API
   const { data: feedbackData, isLoading, error } = useGetFeedbacksQuery({
-    visible: true,
-    approved: true,
+    visible: "true",
+    approved: "true",
   });
 
-  // Use API data if available, otherwise fallback to hardcoded testimonials
-  const allTestimonials = feedbackData?.success ? feedbackData.data : fallbackTestimonials;
+  // Use API data if available and has content, otherwise fallback to hardcoded testimonials
+  const apiTestimonials = feedbackData?.success && Array.isArray(feedbackData.data) && feedbackData.data.length > 0 ? feedbackData.data : null;
+  const allTestimonials = apiTestimonials || fallbackTestimonials;
   
   // Split testimonials into two rows for the marquee effect
   const midpoint = Math.ceil(allTestimonials.length / 2);
   const testimonials1 = allTestimonials.slice(0, midpoint);
   const testimonials2 = allTestimonials.slice(midpoint);
 
-  // If loading or no testimonials, show fallback
-  if (isLoading || allTestimonials.length === 0) {
+  // If loading, show fallback with loading indicator
+  if (isLoading) {
     const fallbackMidpoint = Math.ceil(fallbackTestimonials.length / 2);
     const fallbackTestimonials1 = fallbackTestimonials.slice(0, fallbackMidpoint);
     const fallbackTestimonials2 = fallbackTestimonials.slice(fallbackMidpoint);
@@ -114,7 +142,7 @@ const TestimonialSection = () => {
                 <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-black dark:bg-white opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-black dark:bg-white"></span>
               </span>
-              Client Feedback
+              Client Feedback (Loading...)
             </div>
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground">
               What People Say
@@ -132,7 +160,12 @@ const TestimonialSection = () => {
               <div className="flex animate-marquee-left">
                 {[...fallbackTestimonials1, ...fallbackTestimonials1].map(
                   (testimonial, index) => (
-                    <TestimonialCard key={`fallback-row1-${index}`} {...testimonial} />
+                    <TestimonialCard 
+                      key={`fallback-row1-${index}`} 
+                      feedback={testimonial.feedback}
+                      name={testimonial.name}
+                      role={testimonial.role}
+                    />
                   )
                 )}
               </div>
@@ -145,7 +178,12 @@ const TestimonialSection = () => {
               <div className="flex animate-marquee-right">
                 {[...fallbackTestimonials2, ...fallbackTestimonials2].map(
                   (testimonial, index) => (
-                    <TestimonialCard key={`fallback-row2-${index}`} {...testimonial} />
+                    <TestimonialCard 
+                      key={`fallback-row2-${index}`} 
+                      feedback={testimonial.feedback}
+                      name={testimonial.name}
+                      role={testimonial.role}
+                    />
                   )
                 )}
               </div>
@@ -166,7 +204,7 @@ const TestimonialSection = () => {
               <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-black dark:bg-white opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-black dark:bg-white"></span>
             </span>
-            Client Feedback
+            Client Feedback {apiTestimonials ? "(Live)" : "(Sample)"}
           </div>
           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground">
             What People Say
@@ -184,7 +222,13 @@ const TestimonialSection = () => {
             <div className="flex animate-marquee-left">
               {[...testimonials1, ...testimonials1].map(
                 (testimonial, index) => (
-                  <TestimonialCard key={`row1-${index}`} {...testimonial} />
+                  <TestimonialCard 
+                    key={`row1-${index}`} 
+                    feedback={testimonial.feedback}
+                    name={testimonial.name}
+                    role={testimonial.role}
+                    company={testimonial.company}
+                  />
                 )
               )}
             </div>
@@ -197,7 +241,13 @@ const TestimonialSection = () => {
             <div className="flex animate-marquee-right">
               {[...testimonials2, ...testimonials2].map(
                 (testimonial, index) => (
-                  <TestimonialCard key={`row2-${index}`} {...testimonial} />
+                  <TestimonialCard 
+                    key={`row2-${index}`} 
+                    feedback={testimonial.feedback}
+                    name={testimonial.name}
+                    role={testimonial.role}
+                    company={testimonial.company}
+                  />
                 )
               )}
             </div>
